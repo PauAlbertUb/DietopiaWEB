@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dietopia – Tu dieta personalizada</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥗</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    /* ---- Landing-specific styles ---- */
+
+    /* Hero Section */
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: flex;
+      align-items: center;
+      background: linear-gradient(160deg, #f0f9f0 0%, #e8f5e9 40%, #ffffff 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(91,165,91,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      max-width: 580px;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--color-primary-bg);
+      border: 1px solid var(--color-border);
+      color: var(--color-primary-dark);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      margin-bottom: var(--space-5);
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: var(--space-5);
+    }
+
+    .hero h1 .highlight {
+      color: var(--color-primary);
+      position: relative;
+    }
+
+    .hero-desc {
+      font-size: var(--text-lg);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-8);
+      max-width: 480px;
+      line-height: 1.7;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: var(--space-6);
+      margin-top: var(--space-10);
+      padding-top: var(--space-6);
+      border-top: 1px solid var(--color-border);
+      flex-wrap: wrap;
+    }
+
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-stat-value {
+      font-size: var(--text-2xl);
+      font-weight: 800;
+      color: var(--color-primary);
+    }
+
+    .hero-stat-label {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+
+    /* Floating food items (decorative) */
+    .hero-visual {
+      flex: 0 0 auto;
+      width: 380px;
+      height: 380px;
+      position: relative;
+      display: none;
+    }
+
+    @media (min-width: 900px) {
+      .hero-visual { display: block; }
+      .hero .container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-12);
+      }
+    }
+
+    .hero-card-preview {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-lg);
+      padding: var(--space-5);
+      max-width: 320px;
+      position: absolute;
+    }
+
+    .hero-card-main {
+      top: 20px;
+      left: 20px;
+    }
+
+    .hero-card-small {
+      bottom: 30px;
+      right: 0;
+      width: 200px;
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .meal-preview-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .meal-preview-row:last-child {
+      border-bottom: none;
+    }
+
+    .meal-preview-emoji {
+      font-size: 1.5rem;
+      width: 40px;
+      text-align: center;
+    }
+
+    .meal-preview-info h4 {
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .meal-preview-info p {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+    }
+
+    /* Value Props Section */
+    .value-props {
+      padding: var(--space-16) 0;
+      background: var(--color-surface);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: var(--space-12);
+    }
+
+    .section-eyebrow {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-primary);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: var(--space-3);
+    }
+
+    .section-header h2 {
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 800;
+      margin-bottom: var(--space-4);
+    }
+
+    .section-header p {
+      font-size: var(--text-lg);
+      color: var(--color-text-muted);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .props-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: var(--space-6);
+    }
+
+    .prop-card {
+      padding: var(--space-6);
+      border-radius: var(--radius-md);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      text-align: center;
+      transition: all var(--transition-base);
+    }
+
+    .prop-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-primary);
+    }
+
+    .prop-icon {
+      font-size: 2.5rem;
+      margin-bottom: var(--space-4);
+      display: block;
+    }
+
+    .prop-card h3 {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      margin-bottom: var(--space-2);
+    }
+
+    .prop-card p {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      line-height: 1.6;
+    }
+
+    /* How it works */
+    .how-it-works {
+      padding: var(--space-16) 0;
+      background: linear-gradient(180deg, var(--color-primary-bg) 0%, var(--color-surface) 100%);
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-6);
+      margin-top: var(--space-10);
+      position: relative;
+    }
+
+    .step-card {
+      text-align: center;
+      padding: var(--space-6);
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      background: var(--color-primary);
+      color: #fff;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xl);
+      font-weight: 800;
+      margin: 0 auto var(--space-4);
+    }
+
+    .step-card h3 {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin-bottom: var(--space-2);
+    }
+
+    .step-card p {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+
+    /* Testimonials */
+    .testimonials {
+      padding: var(--space-16) 0;
+      background: var(--color-surface);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-6);
+      margin-top: var(--space-10);
+    }
+
+    .testimonial-card {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-6);
+      position: relative;
+      transition: all var(--transition-base);
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .testimonial-card::before {
+      content: '"';
+      position: absolute;
+      top: -10px;
+      left: 20px;
+      font-size: 4rem;
+      color: var(--color-primary);
+      font-family: serif;
+      line-height: 1;
+    }
+
+    .testimonial-text {
+      font-size: var(--text-base);
+      color: var(--color-text);
+      line-height: 1.7;
+      margin-bottom: var(--space-4);
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      background: var(--color-primary-bg);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .author-name {
+      font-weight: 700;
+      font-size: var(--text-sm);
+    }
+
+    .author-role {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: var(--space-16) 0;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      text-align: center;
+      color: #fff;
+    }
+
+    .cta-section h2 {
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: var(--space-4);
+    }
+
+    .cta-section p {
+      font-size: var(--text-lg);
+      color: rgba(255,255,255,0.85);
+      margin-bottom: var(--space-8);
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn-white {
+      background: #fff;
+      color: var(--color-primary-dark);
+      border-color: #fff;
+    }
+
+    .btn-white:hover {
+      background: var(--color-primary-bg);
+      border-color: var(--color-primary-bg);
+      color: var(--color-primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* Footer */
+    footer {
+      padding: var(--space-8) 0;
+      background: var(--color-bg-alt);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .footer-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+
+    .footer-brand {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: var(--space-6);
+    }
+
+    .footer-links a {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+
+    .footer-links a:hover {
+      color: var(--color-primary);
+    }
+
+    footer p {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      text-align: center;
+      margin-top: var(--space-6);
+    }
+
+    /* Fade-in animation */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Landing-specific navbar */
+    .landing-navbar {
+      height: var(--navbar-height);
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--color-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .landing-navbar .container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="landing-navbar">
+    <div class="container">
+      <a href="index.html" class="navbar-brand">
+        <span class="brand-icon">🥗</span>
+        Dietopia
+      </a>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <a href="pages/login.html" class="btn btn-outline btn-sm">Iniciar sesión</a>
+        <a href="pages/login.html#signup" class="btn btn-primary btn-sm">Unirse gratis</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-eyebrow">✨ Nuevo: Dietas generadas con IA</div>
+        <h1>
+          Come mejor.<br>
+          <span class="highlight">Sin esfuerzo.</span>
+        </h1>
+        <p class="hero-desc">
+          Dietopia genera tu plan de comidas personalizado en segundos, optimiza tu lista de la compra y te ayuda a alcanzar tus objetivos sin complicaciones.
+        </p>
+        <div class="hero-cta">
+          <a href="pages/login.html#signup" class="btn btn-primary btn-lg">
+            🚀 Unirme ahora — es gratis
+          </a>
+          <a href="#how-it-works" class="btn btn-outline btn-lg">
+            Ver cómo funciona
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-value" data-count="12000">0</span>
+            <span class="hero-stat-label">Usuarios activos</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value" data-count="40" data-suffix="%">0%</span>
+            <span class="hero-stat-label">Ahorro en compra</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value" data-count="98" data-suffix="%">0%</span>
+            <span class="hero-stat-label">Satisfacción</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual mockup card -->
+      <div class="hero-visual">
+        <div class="hero-card-preview hero-card-main">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+            <div style="font-size:0.8rem; font-weight:700; color:var(--color-text-muted);">PLAN ESTA SEMANA</div>
+            <span class="badge badge-green">✓ Activo</span>
+          </div>
+          <div class="meal-preview-row">
+            <div class="meal-preview-emoji">🍓</div>
+            <div class="meal-preview-info">
+              <h4>Avena con frutas</h4>
+              <p>Desayuno · 320 kcal</p>
+            </div>
+          </div>
+          <div class="meal-preview-row">
+            <div class="meal-preview-emoji">🥗</div>
+            <div class="meal-preview-info">
+              <h4>Ensalada de pollo</h4>
+              <p>Comida · 480 kcal</p>
+            </div>
+          </div>
+          <div class="meal-preview-row">
+            <div class="meal-preview-emoji">🐟</div>
+            <div class="meal-preview-info">
+              <h4>Salmón al vapor</h4>
+              <p>Cena · 420 kcal</p>
+            </div>
+          </div>
+        </div>
+        <div class="hero-card-preview hero-card-small">
+          <div style="font-size:0.75rem; font-weight:700; color:var(--color-text-muted); margin-bottom:8px;">AHORRO SEMANAL</div>
+          <div style="font-size:1.6rem; font-weight:800; color:var(--color-primary);">-38€</div>
+          <div style="font-size:0.75rem; color:var(--color-text-muted);">vs. semana anterior</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Value Propositions -->
+  <section class="value-props" id="features">
+    <div class="container">
+      <div class="section-header fade-in">
+        <div class="section-eyebrow">¿Por qué Dietopia?</div>
+        <h2>Todo lo que necesitas para comer bien</h2>
+        <p>Sin apps complicadas. Sin recetas inentendibles. Solo resultados.</p>
+      </div>
+      <div class="props-grid" id="props-container">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- How it Works -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header fade-in">
+        <div class="section-eyebrow">Proceso</div>
+        <h2>En 3 pasos tienes tu dieta</h2>
+        <p>Más sencillo imposible.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card fade-in">
+          <div class="step-number">1</div>
+          <div style="font-size:2rem; margin-bottom:12px;">📋</div>
+          <h3>Cuéntanos sobre ti</h3>
+          <p>Tus objetivos, restricciones y presupuesto. Solo 2 minutos.</p>
+        </div>
+        <div class="step-card fade-in">
+          <div class="step-number">2</div>
+          <div style="font-size:2rem; margin-bottom:12px;">🤖</div>
+          <h3>La IA genera tu plan</h3>
+          <p>Dieta semanal personalizada con recetas y lista de la compra optimizada.</p>
+        </div>
+        <div class="step-card fade-in">
+          <div class="step-number">3</div>
+          <div style="font-size:2rem; margin-bottom:12px;">✅</div>
+          <h3>Disfruta comiendo mejor</h3>
+          <p>Sigue el plan, ajusta lo que quieras y mira tu progreso.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="section-header fade-in">
+        <div class="section-eyebrow">Comunidad</div>
+        <h2>Lo que dicen nuestros usuarios</h2>
+      </div>
+      <div class="testimonials-grid" id="testimonials-container">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>¿Listo para comer mejor?</h2>
+      <p>Únete a más de 12.000 personas que ya disfrutan de dietas personalizadas sin esfuerzo.</p>
+      <a href="pages/login.html#signup" class="btn btn-white btn-lg">
+        🥗 Empezar gratis ahora
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span>🥗</span> Dietopia
+        </div>
+        <div class="footer-links">
+          <a href="#">Privacidad</a>
+          <a href="#">Términos</a>
+          <a href="#">Soporte</a>
+        </div>
+      </div>
+      <p>© 2025 Dietopia · Prototipo funcional · Hecho con ❤️</p>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    /**
+     * Landing page – render value props, testimonials, and animate stats
+     */
+    document.addEventListener("DOMContentLoaded", () => {
+      const { VALUE_PROPS, TESTIMONIALS } = window.DietopiaData;
+
+      // ---- Render value proposition cards ----
+      const propsContainer = document.getElementById("props-container");
+      VALUE_PROPS.forEach((prop, i) => {
+        const card = document.createElement("div");
+        card.className = "prop-card fade-in";
+        card.style.transitionDelay = `${i * 0.1}s`;
+        card.innerHTML = `
+          <span class="prop-icon">${prop.icon}</span>
+          <h3>${prop.title}</h3>
+          <p>${prop.desc}</p>
+        `;
+        propsContainer.appendChild(card);
+      });
+
+      // ---- Render testimonials ----
+      const testimonialsContainer = document.getElementById("testimonials-container");
+      TESTIMONIALS.forEach((t, i) => {
+        const card = document.createElement("div");
+        card.className = "testimonial-card fade-in";
+        card.style.transitionDelay = `${i * 0.15}s`;
+        card.innerHTML = `
+          <p class="testimonial-text">${t.text}</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">${t.avatar}</div>
+            <div>
+              <div class="author-name">${t.author}</div>
+              <div class="author-role">${t.role}</div>
+            </div>
+          </div>
+        `;
+        testimonialsContainer.appendChild(card);
+      });
+
+      // ---- Animate hero stats on page load ----
+      const statEls = document.querySelectorAll("[data-count]");
+      statEls.forEach((el) => {
+        const target = parseInt(el.dataset.count, 10);
+        const suffix = el.dataset.suffix || "";
+        animateCount(el, target, 1500, suffix);
+      });
+
+      // ---- Re-init scroll animations (for dynamically added elements) ----
+      initScrollAnimations();
+    });
+  </script>
+</body>
+</html>
