@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acceder – Dietopia</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥗</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/main.css" />
+  <style>
+    /* ---- Login / Signup page layout ---- */
+    .auth-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 800px) {
+      .auth-page { grid-template-columns: 1fr; }
+      .auth-panel-left { display: none; }
+    }
+
+    /* Left panel – decorative */
+    .auth-panel-left {
+      background: linear-gradient(160deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-panel-left::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 300px;
+      height: 300px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+
+    .auth-panel-left::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      left: -80px;
+      width: 400px;
+      height: 400px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+
+    .auth-left-content {
+      position: relative;
+      z-index: 1;
+      color: #fff;
+      text-align: center;
+    }
+
+    .auth-left-logo {
+      font-size: 3rem;
+      margin-bottom: var(--space-4);
+    }
+
+    .auth-left-content h2 {
+      font-size: var(--text-3xl);
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: var(--space-4);
+    }
+
+    .auth-left-content p {
+      font-size: var(--text-lg);
+      color: rgba(255,255,255,0.85);
+      margin-bottom: var(--space-8);
+    }
+
+    /* Testimonial mini */
+    .mini-testimonial {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      text-align: left;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+
+    .mini-testimonial-text {
+      font-size: var(--text-base);
+      color: rgba(255,255,255,0.92);
+      font-style: italic;
+      margin-bottom: var(--space-3);
+      line-height: 1.6;
+    }
+
+    .mini-testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .mini-testimonial-avatar {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .mini-testimonial-name {
+      font-weight: 700;
+      color: #fff;
+      font-size: var(--text-sm);
+    }
+
+    .mini-testimonial-role {
+      font-size: var(--text-xs);
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* Testimonial auto-rotate dots */
+    .testimonial-dots {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: var(--space-4);
+    }
+
+    .testimonial-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      background: rgba(255,255,255,0.4);
+      transition: all var(--transition-base);
+      cursor: pointer;
+    }
+
+    .testimonial-dot.active {
+      background: #fff;
+      width: 24px;
+    }
+
+    /* Right panel – form */
+    .auth-panel-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-12) var(--space-8);
+      background: var(--color-bg);
+      overflow-y: auto;
+    }
+
+    .auth-form-container {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: var(--space-8);
+    }
+
+    .auth-header-logo {
+      font-size: 2rem;
+      margin-bottom: var(--space-3);
+      display: block;
+    }
+
+    .auth-header h1 {
+      font-size: var(--text-2xl);
+      font-weight: 800;
+      margin-bottom: var(--space-2);
+    }
+
+    .auth-header p {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+
+    /* Tab switcher */
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2);
+      background: var(--color-bg-alt);
+      padding: 4px;
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-6);
+    }
+
+    .auth-tab {
+      padding: var(--space-3);
+      text-align: center;
+      border-radius: calc(var(--radius-md) - 4px);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--color-text-muted);
+      transition: all var(--transition-fast);
+      border: none;
+      background: none;
+    }
+
+    .auth-tab.active {
+      background: var(--color-surface);
+      color: var(--color-text);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Form panels */
+    .form-panel {
+      display: none;
+    }
+
+    .form-panel.active {
+      display: block;
+    }
+
+    /* Social login buttons */
+    .social-login {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .btn-social {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      width: 100%;
+      text-decoration: none;
+    }
+
+    .btn-social:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-bg);
+      transform: translateY(-1px);
+    }
+
+    .social-icon {
+      font-size: 1.2rem;
+    }
+
+    /* Password toggle */
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper .form-input {
+      padding-right: 44px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-text-muted);
+      font-size: 1rem;
+      padding: 0;
+    }
+
+    /* Strength bar */
+    .password-strength {
+      margin-top: var(--space-2);
+    }
+
+    .strength-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .strength-segment {
+      flex: 1;
+      height: 4px;
+      background: var(--color-bg-alt);
+      border-radius: var(--radius-full);
+      transition: background var(--transition-base);
+    }
+
+    .strength-segment.weak { background: var(--color-danger); }
+    .strength-segment.medium { background: var(--color-warning); }
+    .strength-segment.strong { background: var(--color-success); }
+
+    .strength-label {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+    }
+
+    /* Footer link */
+    .auth-footer {
+      text-align: center;
+      margin-top: var(--space-6);
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+
+    .auth-footer a {
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    /* Back to landing */
+    .auth-back {
+      position: absolute;
+      top: var(--space-4);
+      left: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      text-decoration: none;
+    }
+
+    .auth-back:hover {
+      color: var(--color-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <a href="../index.html" class="auth-back">← Volver al inicio</a>
+
+  <div class="auth-page">
+
+    <!-- Left decorative panel -->
+    <div class="auth-panel-left">
+      <div class="auth-left-content">
+        <div class="auth-left-logo">🥗</div>
+        <h2>Come mejor cada día</h2>
+        <p>Tu plan de comidas personalizado, listo en segundos.</p>
+
+        <!-- Rotating testimonials -->
+        <div class="mini-testimonial" id="left-testimonial">
+          <p class="mini-testimonial-text">"Dietopia cambió mi forma de comer. Ahorro 40€ al mes en la compra."</p>
+          <div class="mini-testimonial-author">
+            <div class="mini-testimonial-avatar">👩‍🎨</div>
+            <div>
+              <div class="mini-testimonial-name">María L.</div>
+              <div class="mini-testimonial-role">Diseñadora UX</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-dots" id="testimonial-dots">
+          <div class="testimonial-dot active" data-index="0"></div>
+          <div class="testimonial-dot" data-index="1"></div>
+          <div class="testimonial-dot" data-index="2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right form panel -->
+    <div class="auth-panel-right">
+      <div class="auth-form-container">
+
+        <div class="auth-header">
+          <span class="auth-header-logo">🥗</span>
+          <h1>Bienvenido/a</h1>
+          <p>Inicia sesión o crea tu cuenta gratis</p>
+        </div>
+
+        <!-- Tab Switcher -->
+        <div class="auth-tabs" role="tablist">
+          <button class="auth-tab active" id="tab-login" role="tab" aria-selected="true" onclick="switchTab('login')">
+            Iniciar sesión
+          </button>
+          <button class="auth-tab" id="tab-signup" role="tab" aria-selected="false" onclick="switchTab('signup')">
+            Crear cuenta
+          </button>
+        </div>
+
+        <!-- ===== LOGIN PANEL ===== -->
+        <div class="form-panel active" id="panel-login">
+
+          <!-- Social login (mocked) -->
+          <div class="social-login">
+            <button class="btn-social" onclick="handleSocialLogin('Google')">
+              <span class="social-icon">🟠</span>
+              Continuar con Google
+            </button>
+            <button class="btn-social" onclick="handleSocialLogin('Apple')">
+              <span class="social-icon">⚫</span>
+              Continuar con Apple
+            </button>
+          </div>
+
+          <div class="divider-text"><span>o con email</span></div>
+
+          <form id="login-form" novalidate>
+            <div class="form-group" id="login-email-group">
+              <label class="form-label" for="login-email">Correo electrónico</label>
+              <input
+                type="email"
+                id="login-email"
+                class="form-input"
+                placeholder="tu@email.com"
+                autocomplete="email"
+              />
+              <span class="form-error">Introduce un email válido</span>
+            </div>
+
+            <div class="form-group" id="login-pass-group">
+              <label class="form-label" for="login-password">
+                Contraseña
+                <a href="#" style="font-weight:400; float:right; font-size:0.8rem;" onclick="showResetToast(event)">¿Olvidaste la contraseña?</a>
+              </label>
+              <div class="password-wrapper">
+                <input
+                  type="password"
+                  id="login-password"
+                  class="form-input"
+                  placeholder="Tu contraseña"
+                  autocomplete="current-password"
+                />
+                <button type="button" class="password-toggle" onclick="togglePassword('login-password', this)">👁</button>
+              </div>
+              <span class="form-error">La contraseña es obligatoria</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full" style="margin-top:8px;">
+              Entrar
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            ¿No tienes cuenta? <a href="#" onclick="switchTab('signup')">Créala gratis</a>
+          </div>
+        </div>
+
+        <!-- ===== SIGNUP PANEL ===== -->
+        <div class="form-panel" id="panel-signup">
+
+          <div class="social-login">
+            <button class="btn-social" onclick="handleSocialLogin('Google')">
+              <span class="social-icon">🟠</span>
+              Registrarse con Google
+            </button>
+            <button class="btn-social" onclick="handleSocialLogin('Apple')">
+              <span class="social-icon">⚫</span>
+              Registrarse con Apple
+            </button>
+          </div>
+
+          <div class="divider-text"><span>o con email</span></div>
+
+          <form id="signup-form" novalidate>
+            <div class="form-group" id="signup-name-group">
+              <label class="form-label" for="signup-name">Nombre completo</label>
+              <input
+                type="text"
+                id="signup-name"
+                class="form-input"
+                placeholder="Tu nombre"
+                autocomplete="name"
+              />
+              <span class="form-error">El nombre es obligatorio</span>
+            </div>
+
+            <div class="form-group" id="signup-email-group">
+              <label class="form-label" for="signup-email">Correo electrónico</label>
+              <input
+                type="email"
+                id="signup-email"
+                class="form-input"
+                placeholder="tu@email.com"
+                autocomplete="email"
+              />
+              <span class="form-error">Introduce un email válido</span>
+            </div>
+
+            <div class="form-group" id="signup-pass-group">
+              <label class="form-label" for="signup-password">Contraseña</label>
+              <div class="password-wrapper">
+                <input
+                  type="password"
+                  id="signup-password"
+                  class="form-input"
+                  placeholder="Mínimo 8 caracteres"
+                  autocomplete="new-password"
+                  oninput="checkPasswordStrength(this.value)"
+                />
+                <button type="button" class="password-toggle" onclick="togglePassword('signup-password', this)">👁</button>
+              </div>
+              <!-- Password strength indicator -->
+              <div class="password-strength" id="password-strength" style="display:none;">
+                <div class="strength-bar">
+                  <div class="strength-segment" id="seg1"></div>
+                  <div class="strength-segment" id="seg2"></div>
+                  <div class="strength-segment" id="seg3"></div>
+                  <div class="strength-segment" id="seg4"></div>
+                </div>
+                <div class="strength-label" id="strength-label">–</div>
+              </div>
+              <span class="form-error">La contraseña debe tener al menos 8 caracteres</span>
+            </div>
+
+            <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:16px;">
+              <input type="checkbox" id="terms-check" style="margin-top:3px; accent-color:var(--color-primary); cursor:pointer;" />
+              <label for="terms-check" style="font-size:0.85rem; color:var(--color-text-muted); cursor:pointer;">
+                Acepto los <a href="#" onclick="showToast('Términos próximamente 😊','default');return false;">Términos de uso</a> y la <a href="#" onclick="showToast('Privacidad próximamente 😊','default');return false;">Política de privacidad</a>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full">
+              Crear cuenta gratis
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            ¿Ya tienes cuenta? <a href="#" onclick="switchTab('login')">Inicia sesión</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="dietopia-toast"></div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    /**
+     * Login / Sign-up page logic
+     */
+
+    // ---- Check URL hash for deep-linking to signup ----
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.location.hash === "#signup") {
+        switchTab("signup");
+      }
+      // Rotate testimonials
+      startTestimonialRotation();
+    });
+
+    // ---- Tab switcher ----
+    function switchTab(tab) {
+      const panels = ["login", "signup"];
+      panels.forEach((t) => {
+        document.getElementById("panel-" + t).classList.toggle("active", t === tab);
+        const tabEl = document.getElementById("tab-" + t);
+        tabEl.classList.toggle("active", t === tab);
+        tabEl.setAttribute("aria-selected", t === tab);
+      });
+    }
+
+    // ---- Social login (mocked) ----
+    function handleSocialLogin(provider) {
+      showToast("Conectando con " + provider + "...", "default");
+      setTimeout(() => {
+        doLogin({ name: "Usuario " + provider, email: "usuario@" + provider.toLowerCase() + ".com", avatar: "🧑" });
+      }, 1200);
+    }
+
+    // ---- Login form submission ----
+    document.getElementById("login-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value.trim();
+      const password = document.getElementById("login-password").value;
+
+      let valid = true;
+
+      // Validate email
+      const emailGroup = document.getElementById("login-email-group");
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailGroup.classList.add("has-error");
+        valid = false;
+      } else {
+        emailGroup.classList.remove("has-error");
+      }
+
+      // Validate password
+      const passGroup = document.getElementById("login-pass-group");
+      if (!password) {
+        passGroup.classList.add("has-error");
+        valid = false;
+      } else {
+        passGroup.classList.remove("has-error");
+      }
+
+      if (!valid) return;
+
+      // Simulate login
+      const btn = e.target.querySelector("button[type=submit]");
+      btn.disabled = true;
+      btn.textContent = "Entrando...";
+
+      setTimeout(() => {
+        const name = email.split("@")[0];
+        doLogin({ name: capitalize(name), email, avatar: "🧑" });
+      }, 1000);
+    });
+
+    // ---- Sign-up form submission ----
+    document.getElementById("signup-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("signup-name").value.trim();
+      const email = document.getElementById("signup-email").value.trim();
+      const password = document.getElementById("signup-password").value;
+      const terms = document.getElementById("terms-check").checked;
+
+      let valid = true;
+
+      const nameGroup = document.getElementById("signup-name-group");
+      if (!name) {
+        nameGroup.classList.add("has-error");
+        valid = false;
+      } else {
+        nameGroup.classList.remove("has-error");
+      }
+
+      const emailGroup = document.getElementById("signup-email-group");
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailGroup.classList.add("has-error");
+        valid = false;
+      } else {
+        emailGroup.classList.remove("has-error");
+      }
+
+      const passGroup = document.getElementById("signup-pass-group");
+      if (!password || password.length < 8) {
+        passGroup.classList.add("has-error");
+        valid = false;
+      } else {
+        passGroup.classList.remove("has-error");
+      }
+
+      if (!terms) {
+        showToast("Debes aceptar los términos para continuar", "warning");
+        return;
+      }
+
+      if (!valid) return;
+
+      const btn = e.target.querySelector("button[type=submit]");
+      btn.disabled = true;
+      btn.textContent = "Creando cuenta...";
+
+      setTimeout(() => {
+        doLogin({ name, email, avatar: "🧑", isNew: true });
+      }, 1000);
+    });
+
+    // ---- Perform login (save session) ----
+    function doLogin(user) {
+      Storage.set("loggedIn", true);
+      Storage.set("user", user);
+      // If new user, go to onboarding; else go to dashboard
+      if (user.isNew || !Storage.get("onboardingDone")) {
+        window.location.href = "onboarding.html";
+      } else {
+        window.location.href = "dashboard.html";
+      }
+    }
+
+    // ---- Password visibility toggle ----
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === "password") {
+        input.type = "text";
+        btn.textContent = "🙈";
+      } else {
+        input.type = "password";
+        btn.textContent = "👁";
+      }
+    }
+
+    // ---- Password strength checker ----
+    function checkPasswordStrength(password) {
+      const strengthEl = document.getElementById("password-strength");
+      if (!password) {
+        strengthEl.style.display = "none";
+        return;
+      }
+      strengthEl.style.display = "block";
+
+      let score = 0;
+      if (password.length >= 8) score++;
+      if (/[A-Z]/.test(password)) score++;
+      if (/[0-9]/.test(password)) score++;
+      if (/[^A-Za-z0-9]/.test(password)) score++;
+
+      const segments = ["seg1", "seg2", "seg3", "seg4"];
+      const classes = ["", "weak", "medium", "strong", "strong"];
+      const labels = ["", "Muy débil", "Débil", "Buena", "Fuerte"];
+      const activeClass = score === 1 ? "weak" : score === 2 ? "medium" : "strong";
+
+      segments.forEach((id, i) => {
+        const seg = document.getElementById(id);
+        seg.className = "strength-segment " + (i < score ? activeClass : "");
+      });
+
+      document.getElementById("strength-label").textContent = labels[score];
+    }
+
+    // ---- Password reset (mocked) ----
+    function showResetToast(e) {
+      e.preventDefault();
+      showToast("📧 Te enviaremos un email para recuperar tu contraseña", "success", 4000);
+    }
+
+    // ---- Capitalize helper ----
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // ---- Testimonial rotation ----
+    function startTestimonialRotation() {
+      const { TESTIMONIALS } = window.DietopiaData;
+      let current = 0;
+      const testimonialEl = document.getElementById("left-testimonial");
+      const dots = document.querySelectorAll(".testimonial-dot");
+
+      function updateTestimonial(index) {
+        const t = TESTIMONIALS[index];
+        testimonialEl.style.opacity = "0";
+        testimonialEl.style.transform = "translateY(10px)";
+        setTimeout(() => {
+          testimonialEl.innerHTML = `
+            <p class="mini-testimonial-text">"${t.text}"</p>
+            <div class="mini-testimonial-author">
+              <div class="mini-testimonial-avatar">${t.avatar}</div>
+              <div>
+                <div class="mini-testimonial-name">${t.author}</div>
+                <div class="mini-testimonial-role">${t.role}</div>
+              </div>
+            </div>
+          `;
+          testimonialEl.style.opacity = "1";
+          testimonialEl.style.transform = "translateY(0)";
+        }, 300);
+
+        dots.forEach((dot, i) => {
+          dot.classList.toggle("active", i === index);
+        });
+      }
+
+      testimonialEl.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+      dots.forEach((dot) => {
+        dot.addEventListener("click", () => {
+          current = parseInt(dot.dataset.index, 10);
+          updateTestimonial(current);
+        });
+      });
+
+      setInterval(() => {
+        current = (current + 1) % TESTIMONIALS.length;
+        updateTestimonial(current);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuración inicial – Dietopia</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥗</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/main.css" />
+  <style>
+    /* ---- Onboarding page styles ---- */
+    .onboarding-layout {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--color-bg);
+    }
+
+    .onboarding-header {
+      padding: var(--space-5) var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-surface);
+    }
+
+    .onboarding-brand {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      text-decoration: none;
+    }
+
+    .skip-btn {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      transition: color var(--transition-fast);
+    }
+
+    .skip-btn:hover {
+      color: var(--color-primary);
+    }
+
+    /* Progress header */
+    .onboarding-progress-bar {
+      background: var(--color-surface);
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .onboarding-progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-2);
+      font-size: var(--text-sm);
+    }
+
+    .progress-step-label {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .progress-step-count {
+      color: var(--color-text-muted);
+    }
+
+    /* Main content */
+    .onboarding-content {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: var(--space-10) var(--space-6);
+    }
+
+    .onboarding-form-wrapper {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    /* Step */
+    .onboarding-step {
+      display: none;
+    }
+
+    .onboarding-step.active {
+      display: block;
+      animation: stepSlideIn 0.35s ease;
+    }
+
+    @keyframes stepSlideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .step-emoji {
+      font-size: 3rem;
+      text-align: center;
+      display: block;
+      margin-bottom: var(--space-4);
+    }
+
+    .step-title {
+      font-size: var(--text-2xl);
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: var(--space-2);
+    }
+
+    .step-subtitle {
+      font-size: var(--text-base);
+      color: var(--color-text-muted);
+      text-align: center;
+      margin-bottom: var(--space-8);
+    }
+
+    /* Goal selector */
+    .goal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    @media (max-width: 500px) {
+      .goal-grid { grid-template-columns: 1fr; }
+    }
+
+    .goal-card {
+      padding: var(--space-5);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      background: var(--color-surface);
+    }
+
+    .goal-card:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-bg);
+    }
+
+    .goal-card.selected {
+      border-color: var(--color-primary);
+      background: var(--color-primary-bg);
+      box-shadow: 0 0 0 3px rgba(91, 165, 91, 0.15);
+    }
+
+    .goal-card-emoji {
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: var(--space-3);
+    }
+
+    .goal-card h4 {
+      font-size: var(--text-base);
+      font-weight: 700;
+      margin-bottom: var(--space-1);
+    }
+
+    .goal-card p {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+    }
+
+    /* Body metrics */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    /* Budget slider */
+    .budget-display {
+      text-align: center;
+      font-size: var(--text-3xl);
+      font-weight: 800;
+      color: var(--color-primary);
+      margin: var(--space-4) 0;
+    }
+
+    .budget-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin-top: var(--space-2);
+    }
+
+    /* Planning type */
+    .planning-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    /* Navigation buttons */
+    .onboarding-nav {
+      display: flex;
+      gap: var(--space-3);
+      margin-top: var(--space-8);
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Step indicator dots */
+    .step-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: var(--space-8);
+    }
+
+    .step-dot-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      background: var(--color-bg-alt);
+      border: 2px solid var(--color-border);
+      transition: all var(--transition-base);
+    }
+
+    .step-dot-indicator.active {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      width: 24px;
+    }
+
+    .step-dot-indicator.done {
+      background: var(--color-primary-bg);
+      border-color: var(--color-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="onboarding-layout">
+
+    <!-- Header -->
+    <header class="onboarding-header">
+      <a href="../index.html" class="onboarding-brand">
+        <span>🥗</span> Dietopia
+      </a>
+      <button class="skip-btn" onclick="skipOnboarding()">Omitir →</button>
+    </header>
+
+    <!-- Progress bar -->
+    <div class="onboarding-progress-bar">
+      <div class="onboarding-progress-info">
+        <span class="progress-step-label" id="step-label">Paso 1: Tu objetivo</span>
+        <span class="progress-step-count" id="step-count">1 de 5</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="onboarding-progress" style="width:20%"></div>
+      </div>
+    </div>
+
+    <!-- Content area -->
+    <div class="onboarding-content">
+      <div class="onboarding-form-wrapper">
+
+        <!-- Step dots -->
+        <div class="step-dots" id="step-dots">
+          <div class="step-dot-indicator active" data-step="0"></div>
+          <div class="step-dot-indicator" data-step="1"></div>
+          <div class="step-dot-indicator" data-step="2"></div>
+          <div class="step-dot-indicator" data-step="3"></div>
+          <div class="step-dot-indicator" data-step="4"></div>
+        </div>
+
+        <!-- ====== STEP 1: Goal ====== -->
+        <div class="onboarding-step active" id="step-0">
+          <span class="step-emoji">🎯</span>
+          <h2 class="step-title">¿Cuál es tu objetivo?</h2>
+          <p class="step-subtitle">Te ayudaremos a crear un plan personalizado según tu meta</p>
+
+          <div class="goal-grid">
+            <div class="goal-card" data-value="lose_weight" onclick="selectGoal(this)">
+              <span class="goal-card-emoji">⬇️</span>
+              <h4>Perder peso</h4>
+              <p>Déficit calórico controlado</p>
+            </div>
+            <div class="goal-card" data-value="maintain" onclick="selectGoal(this)">
+              <span class="goal-card-emoji">⚖️</span>
+              <h4>Mantenerme</h4>
+              <p>Equilibrio saludable</p>
+            </div>
+            <div class="goal-card" data-value="gain_muscle" onclick="selectGoal(this)">
+              <span class="goal-card-emoji">💪</span>
+              <h4>Ganar músculo</h4>
+              <p>Alto en proteínas</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== STEP 2: Body metrics ====== -->
+        <div class="onboarding-step" id="step-1">
+          <span class="step-emoji">📏</span>
+          <h2 class="step-title">Datos corporales</h2>
+          <p class="step-subtitle">Para calcular tu necesidad calórica exacta</p>
+
+          <div class="metrics-grid">
+            <div class="form-group" id="weight-group">
+              <label class="form-label" for="input-weight">Peso (kg)</label>
+              <input type="number" id="input-weight" class="form-input" placeholder="75" min="30" max="250" />
+              <span class="form-error">Introduce un peso válido (30–250 kg)</span>
+            </div>
+            <div class="form-group" id="height-group">
+              <label class="form-label" for="input-height">Altura (cm)</label>
+              <input type="number" id="input-height" class="form-input" placeholder="175" min="100" max="250" />
+              <span class="form-error">Introduce una altura válida (100–250 cm)</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-age">Edad</label>
+              <input type="number" id="input-age" class="form-input" placeholder="28" min="15" max="100" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-gender">Sexo biológico</label>
+              <select id="input-gender" class="form-select">
+                <option value="">Seleccionar</option>
+                <option value="male">Hombre</option>
+                <option value="female">Mujer</option>
+                <option value="other">Otro / Prefiero no decir</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- BMI display -->
+          <div id="bmi-display" style="display:none; text-align:center; padding:16px; background:var(--color-primary-bg); border-radius:var(--radius-md); margin-top:8px;">
+            <div style="font-size:1.5rem; font-weight:800; color:var(--color-primary);" id="bmi-value">–</div>
+            <div style="font-size:0.85rem; color:var(--color-text-muted);" id="bmi-label">IMC</div>
+          </div>
+        </div>
+
+        <!-- ====== STEP 3: Dietary restrictions ====== -->
+        <div class="onboarding-step" id="step-2">
+          <span class="step-emoji">🚫</span>
+          <h2 class="step-title">Restricciones alimentarias</h2>
+          <p class="step-subtitle">Selecciona todo lo que aplica (puedes elegir varias)</p>
+
+          <div class="tag-group" id="restrictions-container">
+            <div class="tag-option" data-value="none" onclick="toggleTag(this)">Sin restricciones 🍽️</div>
+            <div class="tag-option" data-value="vegetarian" onclick="toggleTag(this)">Vegetariano 🥦</div>
+            <div class="tag-option" data-value="vegan" onclick="toggleTag(this)">Vegano 🌱</div>
+            <div class="tag-option" data-value="gluten_free" onclick="toggleTag(this)">Sin gluten 🌾</div>
+            <div class="tag-option" data-value="lactose_free" onclick="toggleTag(this)">Sin lactosa 🥛</div>
+            <div class="tag-option" data-value="nut_free" onclick="toggleTag(this)">Sin frutos secos 🥜</div>
+            <div class="tag-option" data-value="halal" onclick="toggleTag(this)">Halal 🌙</div>
+            <div class="tag-option" data-value="keto" onclick="toggleTag(this)">Keto 🥩</div>
+            <div class="tag-option" data-value="low_carb" onclick="toggleTag(this)">Bajo en carbos</div>
+            <div class="tag-option" data-value="low_fat" onclick="toggleTag(this)">Bajo en grasa</div>
+          </div>
+        </div>
+
+        <!-- ====== STEP 4: Budget ====== -->
+        <div class="onboarding-step" id="step-3">
+          <span class="step-emoji">💰</span>
+          <h2 class="step-title">Presupuesto semanal</h2>
+          <p class="step-subtitle">¿Cuánto quieres gastar en la compra cada semana?</p>
+
+          <div class="budget-display" id="budget-display">60 €</div>
+
+          <input
+            type="range"
+            id="budget-slider"
+            min="20"
+            max="200"
+            step="5"
+            value="60"
+            oninput="updateBudget(this.value)"
+          />
+          <div class="budget-labels">
+            <span>20 € (económico)</span>
+            <span>200 € (premium)</span>
+          </div>
+
+          <div style="margin-top:24px;">
+            <div class="form-group">
+              <label class="form-label" for="input-people">¿Para cuántas personas?</label>
+              <select id="input-people" class="form-select">
+                <option value="1">Solo yo</option>
+                <option value="2" selected>2 personas</option>
+                <option value="3">3 personas</option>
+                <option value="4">4 personas</option>
+                <option value="5">5+ personas</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== STEP 5: Planning type ====== -->
+        <div class="onboarding-step" id="step-4">
+          <span class="step-emoji">📅</span>
+          <h2 class="step-title">Tipo de planificación</h2>
+          <p class="step-subtitle">¿Cómo quieres que organicemos tus comidas?</p>
+
+          <div class="planning-grid">
+            <div class="goal-card" data-value="weekly" onclick="selectPlanning(this)">
+              <span class="goal-card-emoji">📆</span>
+              <h4>Semanal</h4>
+              <p>Plan completo de 7 días. Recomendado.</p>
+            </div>
+            <div class="goal-card" data-value="daily" onclick="selectPlanning(this)">
+              <span class="goal-card-emoji">📋</span>
+              <h4>Diario</h4>
+              <p>Genera cada día el menú del día siguiente.</p>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:16px;">
+            <label class="form-label">¿Con qué frecuencia cocinas?</label>
+            <div class="tag-group">
+              <div class="tag-option selected" data-cook="daily" onclick="toggleCookFreq(this)">Todos los días</div>
+              <div class="tag-option" data-cook="3week" onclick="toggleCookFreq(this)">3 veces/semana</div>
+              <div class="tag-option" data-cook="batch" onclick="toggleCookFreq(this)">Batch cooking</div>
+              <div class="tag-option" data-cook="minimal" onclick="toggleCookFreq(this)">Lo mínimo</div>
+            </div>
+          </div>
+
+          <!-- Summary preview -->
+          <div class="alert alert-success" id="summary-preview" style="margin-top:16px;">
+            <span>✅</span>
+            <div id="summary-text">Todo listo. Generaremos tu primera dieta ahora.</div>
+          </div>
+        </div>
+
+        <!-- Navigation buttons -->
+        <div class="onboarding-nav">
+          <button class="btn btn-secondary btn-sm" id="back-btn" onclick="goBack()" style="display:none;">
+            ← Atrás
+          </button>
+          <button class="btn btn-primary" id="next-btn" onclick="goNext()" style="margin-left:auto;">
+            Siguiente →
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="dietopia-toast"></div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    /**
+     * Onboarding multi-step form logic
+     */
+
+    // ---- State ----
+    const TOTAL_STEPS = 5;
+    let currentStep = 0;
+    const formData = {
+      goal: null,
+      weight: null,
+      height: null,
+      age: null,
+      gender: null,
+      restrictions: [],
+      budget: 60,
+      people: 2,
+      planningType: null,
+      cookFreq: "daily",
+    };
+
+    const STEP_LABELS = [
+      "Paso 1: Tu objetivo",
+      "Paso 2: Datos corporales",
+      "Paso 3: Restricciones",
+      "Paso 4: Presupuesto",
+      "Paso 5: Tipo de plan",
+    ];
+
+    // ---- Update progress UI ----
+    function updateProgressUI() {
+      const pct = ((currentStep + 1) / TOTAL_STEPS) * 100;
+      document.getElementById("onboarding-progress").style.width = pct + "%";
+      document.getElementById("step-label").textContent = STEP_LABELS[currentStep];
+      document.getElementById("step-count").textContent = (currentStep + 1) + " de " + TOTAL_STEPS;
+
+      // Dots
+      document.querySelectorAll(".step-dot-indicator").forEach((dot, i) => {
+        dot.classList.toggle("active", i === currentStep);
+        dot.classList.toggle("done", i < currentStep);
+      });
+
+      // Back button
+      const backBtn = document.getElementById("back-btn");
+      backBtn.style.display = currentStep > 0 ? "inline-flex" : "none";
+
+      // Next button label on last step
+      const nextBtn = document.getElementById("next-btn");
+      nextBtn.textContent = currentStep === TOTAL_STEPS - 1 ? "¡Generar mi dieta! 🚀" : "Siguiente →";
+    }
+
+    // ---- Navigate next ----
+    function goNext() {
+      if (!validateStep(currentStep)) return;
+      collectStepData(currentStep);
+
+      if (currentStep < TOTAL_STEPS - 1) {
+        document.getElementById("step-" + currentStep).classList.remove("active");
+        currentStep++;
+        document.getElementById("step-" + currentStep).classList.add("active");
+        updateProgressUI();
+
+        // Update summary on last step
+        if (currentStep === TOTAL_STEPS - 1) {
+          updateSummary();
+        }
+      } else {
+        // Final step — save and go to diet generation
+        saveOnboarding();
+      }
+    }
+
+    // ---- Navigate back ----
+    function goBack() {
+      if (currentStep > 0) {
+        document.getElementById("step-" + currentStep).classList.remove("active");
+        currentStep--;
+        document.getElementById("step-" + currentStep).classList.add("active");
+        updateProgressUI();
+      }
+    }
+
+    // ---- Validate current step ----
+    function validateStep(step) {
+      if (step === 0 && !formData.goal) {
+        showToast("Selecciona tu objetivo para continuar", "warning");
+        return false;
+      }
+      if (step === 1) {
+        const w = parseFloat(document.getElementById("input-weight").value);
+        const h = parseFloat(document.getElementById("input-height").value);
+        if (!w || w < 30 || w > 250) {
+          document.getElementById("weight-group").classList.add("has-error");
+          return false;
+        }
+        document.getElementById("weight-group").classList.remove("has-error");
+        if (!h || h < 100 || h > 250) {
+          document.getElementById("height-group").classList.add("has-error");
+          return false;
+        }
+        document.getElementById("height-group").classList.remove("has-error");
+      }
+      if (step === 4 && !formData.planningType) {
+        showToast("Selecciona un tipo de planificación", "warning");
+        return false;
+      }
+      return true;
+    }
+
+    // ---- Collect data from current step ----
+    function collectStepData(step) {
+      if (step === 1) {
+        formData.weight = parseFloat(document.getElementById("input-weight").value) || null;
+        formData.height = parseFloat(document.getElementById("input-height").value) || null;
+        formData.age = parseInt(document.getElementById("input-age").value, 10) || null;
+        formData.gender = document.getElementById("input-gender").value || null;
+      }
+      if (step === 3) {
+        formData.budget = parseInt(document.getElementById("budget-slider").value, 10);
+        formData.people = parseInt(document.getElementById("input-people").value, 10);
+      }
+    }
+
+    // ---- Goal selection ----
+    function selectGoal(card) {
+      document.querySelectorAll(".goal-card[data-value]").forEach((c) => {
+        if (c.closest("#step-0")) c.classList.remove("selected");
+      });
+      card.classList.add("selected");
+      formData.goal = card.dataset.value;
+    }
+
+    // ---- Tag toggles (restrictions) ----
+    function toggleTag(tag) {
+      const value = tag.dataset.value;
+      if (value === "none") {
+        // Select "none" and deselect everything else
+        document.querySelectorAll(".tag-option[data-value]").forEach((t) => t.classList.remove("selected"));
+        tag.classList.add("selected");
+        formData.restrictions = [];
+        return;
+      }
+      // Deselect "none" if another is selected
+      const noneTag = document.querySelector('.tag-option[data-value="none"]');
+      if (noneTag) noneTag.classList.remove("selected");
+
+      tag.classList.toggle("selected");
+      const idx = formData.restrictions.indexOf(value);
+      if (idx === -1) {
+        formData.restrictions.push(value);
+      } else {
+        formData.restrictions.splice(idx, 1);
+      }
+    }
+
+    // ---- Budget update ----
+    function updateBudget(val) {
+      formData.budget = parseInt(val, 10);
+      document.getElementById("budget-display").textContent = val + " €";
+    }
+
+    // ---- Planning type selection ----
+    function selectPlanning(card) {
+      document.querySelectorAll(".goal-card[data-value]").forEach((c) => {
+        if (c.closest("#step-4")) c.classList.remove("selected");
+      });
+      card.classList.add("selected");
+      formData.planningType = card.dataset.value;
+    }
+
+    // ---- Cook frequency ----
+    function toggleCookFreq(tag) {
+      document.querySelectorAll("[data-cook]").forEach((t) => t.classList.remove("selected"));
+      tag.classList.add("selected");
+      formData.cookFreq = tag.dataset.cook;
+    }
+
+    // ---- BMI calculator (live) ----
+    function calcBMI() {
+      const w = parseFloat(document.getElementById("input-weight").value);
+      const h = parseFloat(document.getElementById("input-height").value) / 100;
+      if (w > 0 && h > 0) {
+        const bmi = (w / (h * h)).toFixed(1);
+        const bmiDisplay = document.getElementById("bmi-display");
+        bmiDisplay.style.display = "block";
+        document.getElementById("bmi-value").textContent = bmi;
+        const labels = [
+          [18.5, "Bajo peso"],
+          [25, "Peso normal ✅"],
+          [30, "Sobrepeso"],
+          [Infinity, "Obesidad"],
+        ];
+        const label = labels.find(([limit]) => bmi < limit)[1];
+        document.getElementById("bmi-label").textContent = "IMC · " + label;
+      }
+    }
+
+    document.getElementById("input-weight").addEventListener("input", calcBMI);
+    document.getElementById("input-height").addEventListener("input", calcBMI);
+
+    // ---- Summary on last step ----
+    function updateSummary() {
+      const goalLabels = {
+        lose_weight: "Perder peso",
+        maintain: "Mantenerme",
+        gain_muscle: "Ganar músculo",
+      };
+      const planLabels = { weekly: "semanal", daily: "diaria" };
+      const goal = goalLabels[formData.goal] || "Tu objetivo";
+      const plan = planLabels[formData.planningType] || "semanal";
+      const budget = formData.budget;
+      const restrictions = formData.restrictions.length > 0
+        ? formData.restrictions.join(", ")
+        : "sin restricciones";
+
+      document.getElementById("summary-text").innerHTML =
+        `✅ Objetivo: <strong>${goal}</strong> · Presupuesto: <strong>${budget}€/sem</strong> · Plan <strong>${plan}</strong> · Restricciones: ${restrictions}`;
+    }
+
+    // ---- Save onboarding data and redirect ----
+    function saveOnboarding() {
+      const user = Storage.get("user") || {};
+      const updatedUser = {
+        ...user,
+        ...formData,
+        goalLabel:
+          formData.goal === "lose_weight"
+            ? "Perder peso"
+            : formData.goal === "gain_muscle"
+            ? "Ganar músculo"
+            : "Mantenerme",
+      };
+      Storage.set("user", updatedUser);
+      Storage.set("onboardingDone", true);
+      Storage.set("loggedIn", true);
+
+      showToast("¡Perfil guardado! Generando tu dieta...", "success");
+
+      setTimeout(() => {
+        window.location.href = "diet-generation.html";
+      }, 800);
+    }
+
+    // ---- Skip onboarding ----
+    function skipOnboarding() {
+      Storage.set("onboardingDone", true);
+      Storage.set("loggedIn", true);
+      window.location.href = "dashboard.html";
+    }
+
+    // ---- Init ----
+    updateProgressUI();
+
+    // Auth guard
+    if (!Storage.get("loggedIn")) {
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

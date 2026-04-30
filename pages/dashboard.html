@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – Dietopia</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥗</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/main.css" />
+  <style>
+    /* ---- Dashboard styles ---- */
+    .dashboard-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: var(--space-8) 0 var(--space-16);
+    }
+
+    /* Welcome banner */
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      color: #fff;
+      margin-bottom: var(--space-8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .welcome-banner::after {
+      content: '🥗';
+      position: absolute;
+      right: var(--space-6);
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 5rem;
+      opacity: 0.2;
+    }
+
+    .welcome-banner h1 {
+      color: #fff;
+      font-size: var(--text-3xl);
+      font-weight: 800;
+      margin-bottom: var(--space-2);
+    }
+
+    .welcome-banner p {
+      color: rgba(255,255,255,0.9);
+      font-size: var(--text-base);
+      margin-bottom: var(--space-5);
+    }
+
+    .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: var(--radius-full);
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* Quick actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-8);
+    }
+
+    @media (max-width: 600px) {
+      .quick-actions { grid-template-columns: 1fr; }
+    }
+
+    .action-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-6);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      text-decoration: none;
+      display: block;
+      box-shadow: var(--shadow-card);
+    }
+
+    .action-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--color-primary);
+    }
+
+    .action-card-icon {
+      font-size: 2.5rem;
+      margin-bottom: var(--space-3);
+      display: block;
+    }
+
+    .action-card h3 {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: var(--space-1);
+    }
+
+    .action-card p {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+
+    .action-card .action-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: var(--space-3);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-8);
+    }
+
+    @media (max-width: 700px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .stat-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      text-align: center;
+      box-shadow: var(--shadow-card);
+    }
+
+    .stat-card-value {
+      font-size: var(--text-2xl);
+      font-weight: 800;
+      color: var(--color-primary);
+    }
+
+    .stat-card-label {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin-top: 4px;
+    }
+
+    /* Today's meals preview */
+    .today-meals {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      margin-bottom: var(--space-8);
+    }
+
+    .meal-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--color-border);
+      transition: background var(--transition-fast);
+    }
+
+    .meal-row:last-child {
+      border-bottom: none;
+    }
+
+    .meal-row:hover {
+      background: var(--color-primary-bg);
+    }
+
+    .meal-row-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .meal-time-tag {
+      width: 80px;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+    }
+
+    .meal-emoji-circle {
+      width: 42px;
+      height: 42px;
+      background: var(--color-primary-bg);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .meal-info h4 {
+      font-size: var(--text-base);
+      font-weight: 600;
+    }
+
+    .meal-info p {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+    }
+
+    .meal-row-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    /* Quick-tip card */
+    .tip-card {
+      background: var(--color-secondary-light);
+      border: 1px solid #ffd080;
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      display: flex;
+      gap: var(--space-4);
+      align-items: flex-start;
+      margin-bottom: var(--space-8);
+    }
+
+    .tip-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .tip-content h4 {
+      font-weight: 700;
+      margin-bottom: var(--space-1);
+    }
+
+    .tip-content p {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+
+    /* Compliance ring */
+    .compliance-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-card);
+      text-align: center;
+    }
+
+    .compliance-ring {
+      width: 100px;
+      height: 100px;
+      position: relative;
+      margin: 0 auto var(--space-4);
+    }
+
+    .compliance-ring svg {
+      transform: rotate(-90deg);
+    }
+
+    .compliance-ring-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: var(--text-xl);
+      font-weight: 800;
+      color: var(--color-primary);
+    }
+
+    /* Two-column layout for bottom section */
+    .dashboard-bottom {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: var(--space-6);
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-bottom { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="dashboard-page">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div id="main-navbar"></div>
+  </nav>
+
+  <main class="main-content">
+    <div class="container">
+
+      <!-- Welcome banner -->
+      <div class="welcome-banner" id="welcome-banner">
+        <h1 id="welcome-msg">¡Hola! 👋</h1>
+        <p id="welcome-sub">Aquí tienes tu resumen de hoy</p>
+        <div class="streak-badge">🔥 <span id="streak-count">0</span> días seguidos</div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="quick-actions">
+        <a href="diet-generation.html" class="action-card">
+          <span class="action-card-icon">🤖</span>
+          <h3>Generar Dieta</h3>
+          <p>Crea un nuevo plan personalizado</p>
+          <div class="action-cta">Generar → </div>
+        </a>
+        <a href="diet-view.html" class="action-card">
+          <span class="action-card-icon">🥗</span>
+          <h3>Mi Dieta</h3>
+          <p>Ver tu plan de la semana</p>
+          <div class="action-cta">Ver plan → </div>
+        </a>
+        <a href="shopping.html" class="action-card">
+          <span class="action-card-icon">🛒</span>
+          <h3>Compra</h3>
+          <p>Lista optimizada de ingredientes</p>
+          <div class="action-cta">Ver lista → </div>
+        </a>
+      </div>
+
+      <!-- Stats row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-value" id="stat-calories">1.780</div>
+          <div class="stat-card-label">Kcal hoy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-value" id="stat-compliance">78%</div>
+          <div class="stat-card-label">Cumplimiento</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-value" id="stat-days">12</div>
+          <div class="stat-card-label">Días activo</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-value" id="stat-savings">-€38</div>
+          <div class="stat-card-label">Ahorro compra</div>
+        </div>
+      </div>
+
+      <!-- Tip -->
+      <div class="tip-card" id="daily-tip">
+        <div class="tip-icon">💡</div>
+        <div class="tip-content">
+          <h4>Consejo del día</h4>
+          <p id="tip-text">Beber un vaso de agua antes de cada comida ayuda a sentirte más saciado y mejora la digestión.</p>
+        </div>
+      </div>
+
+      <!-- Bottom section: today's meals + compliance -->
+      <div class="dashboard-bottom">
+
+        <!-- Today's meals -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:1.2rem;">📅</span>
+                <strong id="today-day-label">Hoy, Lunes</strong>
+              </div>
+              <a href="diet-view.html" class="btn btn-sm btn-outline">Ver semana →</a>
+            </div>
+            <div id="today-meals-list">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Compliance ring + quick links -->
+        <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+          <div class="compliance-card">
+            <div class="compliance-ring">
+              <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="#edf7ed" stroke-width="10"/>
+                <circle
+                  cx="50" cy="50" r="42"
+                  fill="none"
+                  stroke="#5ba55b"
+                  stroke-width="10"
+                  stroke-dasharray="264"
+                  stroke-dashoffset="58"
+                  stroke-linecap="round"
+                  id="compliance-circle"
+                />
+              </svg>
+              <div class="compliance-ring-text" id="compliance-pct">78%</div>
+            </div>
+            <div style="font-weight:700; margin-bottom:4px;">Cumplimiento</div>
+            <div style="font-size:0.8rem; color:var(--color-text-muted);">Esta semana vas muy bien 🎉</div>
+            <a href="progress.html" class="btn btn-sm btn-outline" style="margin-top:12px;">Ver progreso</a>
+          </div>
+
+          <div class="card">
+            <div class="card-body" style="padding:var(--space-4);">
+              <div style="font-weight:700; margin-bottom:12px;">Accesos rápidos</div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <a href="shopping.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;">🛒 Lista de la compra</a>
+                <a href="guided-shopping.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;">🗺️ Compra guiada</a>
+                <a href="progress.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;">📊 Mi progreso</a>
+                <a href="profile.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;">👤 Mi perfil</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="dietopia-toast"></div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    /**
+     * Dashboard page logic
+     */
+    document.addEventListener("DOMContentLoaded", () => {
+      // Auth check
+      if (!Storage.get("loggedIn")) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      // Render navbar
+      renderNavbar("dashboard");
+
+      const { MEAL_PLAN, USER } = window.DietopiaData;
+      const user = Storage.get("user") || USER;
+
+      // ---- Welcome message ----
+      const hours = new Date().getHours();
+      const greeting =
+        hours < 13 ? "¡Buenos días" : hours < 20 ? "¡Buenas tardes" : "¡Buenas noches";
+      document.getElementById("welcome-msg").textContent =
+        greeting + ", " + (user.name || "amigo/a") + "! 👋";
+
+      const motivational = [
+        "¡Llevas una racha genial! Sigue así.",
+        "Hoy es un buen día para comer bien. 💪",
+        "Cada comida te acerca a tu objetivo.",
+        "¿Listo para otro día de salud?",
+      ];
+      document.getElementById("welcome-sub").textContent =
+        motivational[Math.floor(Math.random() * motivational.length)];
+
+      // ---- Streak ----
+      document.getElementById("streak-count").textContent = user.streak || USER.streak;
+
+      // ---- Stats ----
+      const compliance = user.compliance || USER.compliance;
+      document.getElementById("stat-compliance").textContent = compliance + "%";
+      document.getElementById("stat-days").textContent = user.daysActive || USER.daysActive;
+
+      // Compliance ring animation
+      const circle = document.getElementById("compliance-circle");
+      const circumference = 264;
+      const offset = circumference - (compliance / 100) * circumference;
+      setTimeout(() => {
+        circle.style.transition = "stroke-dashoffset 1s ease";
+        circle.style.strokeDashoffset = offset;
+      }, 300);
+      document.getElementById("compliance-pct").textContent = compliance + "%";
+
+      // ---- Today's meals ----
+      const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+      const today = new Date().getDay();
+      const dayData = MEAL_PLAN.days[today === 0 ? 6 : today - 1]; // map to our plan
+
+      document.getElementById("today-day-label").textContent =
+        "Hoy, " + days[today];
+
+      const mealTypes = [
+        { key: "breakfast", label: "Desayuno", time: "8:00" },
+        { key: "lunch", label: "Comida", time: "13:30" },
+        { key: "snack", label: "Merienda", time: "16:30" },
+        { key: "dinner", label: "Cena", time: "20:30" },
+      ];
+
+      const container = document.getElementById("today-meals-list");
+      mealTypes.forEach(({ key, label, time }) => {
+        const meal = dayData.meals[key];
+        if (!meal) return;
+        const row = document.createElement("div");
+        row.className = "meal-row";
+        row.innerHTML = `
+          <div class="meal-row-left">
+            <div class="meal-time-tag">${label}</div>
+            <div class="meal-emoji-circle">${meal.emoji}</div>
+            <div class="meal-info">
+              <h4>${meal.name}</h4>
+              <p>${meal.calories} kcal · ${time}</p>
+            </div>
+          </div>
+          <div class="meal-row-right">
+            <a href="diet-view.html" class="btn btn-sm btn-outline">Ver receta</a>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      // ---- Daily tip ----
+      const tips = [
+        "Beber un vaso de agua antes de cada comida ayuda a sentirte más saciado y mejora la digestión.",
+        "Masticar despacio reduce la cantidad de comida que necesitas para sentirte lleno.",
+        "Preparar los ingredientes el domingo ahorra tiempo toda la semana. ¡Prueba el batch cooking!",
+        "Las proteínas en el desayuno ayudan a controlar el apetito durante todo el día.",
+        "Una manzana a media tarde es mejor que cualquier snack ultraprocesado.",
+        "El sueño de calidad regula las hormonas del hambre. Intenta dormir 7-8 horas.",
+      ];
+      document.getElementById("tip-text").textContent =
+        tips[new Date().getDate() % tips.length];
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Perfil – Dietopia</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥗</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/main.css" />
+  <style>
+    /* ---- Profile page styles ---- */
+    .profile-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: var(--space-6) 0 var(--space-16);
+    }
+
+    /* Profile header */
+    .profile-header-card {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: var(--space-6);
+      margin-bottom: var(--space-8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-header-card::after {
+      content: '🥗';
+      position: absolute;
+      right: var(--space-6);
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 5rem;
+      opacity: 0.15;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+      border: 3px solid rgba(255,255,255,0.4);
+      transition: all var(--transition-base);
+    }
+
+    .profile-avatar:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .profile-avatar-edit {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      background: #fff;
+      border-radius: var(--radius-full);
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+    }
+
+    .profile-info h2 {
+      color: #fff;
+      font-size: var(--text-2xl);
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .profile-info p {
+      color: rgba(255,255,255,0.8);
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-3);
+    }
+
+    .profile-meta {
+      display: flex;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .profile-meta-item {
+      background: rgba(255,255,255,0.15);
+      border-radius: var(--radius-full);
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    /* Two column layout */
+    .profile-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+    }
+
+    @media (max-width: 768px) {
+      .profile-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Edit section card */
+    .edit-section {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    .edit-section-header {
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      background: var(--color-bg-alt);
+    }
+
+    .edit-section-header h3 {
+      font-size: var(--text-base);
+      font-weight: 700;
+    }
+
+    .edit-section-body {
+      padding: var(--space-5);
+    }
+
+    /* Avatar picker (emoji grid) */
+    .avatar-picker {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .avatar-picker.open {
+      display: flex;
+    }
+
+    .avatar-picker-box {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      max-width: 360px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .avatar-picker-box h3 {
+      margin-bottom: var(--space-4);
+    }
+
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: var(--space-2);
+    }
+
+    .avatar-option {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      background: var(--color-bg-alt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .avatar-option:hover {
+      background: var(--color-primary-bg);
+      transform: scale(1.1);
+    }
+
+    /* Goal goal radio cards (compact) */
+    .goal-options {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .goal-option {
+      flex: 1;
+      min-width: 100px;
+      padding: var(--space-3) var(--space-4);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      text-align: center;
+      cursor: pointer;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      transition: all var(--transition-fast);
+      background: var(--color-surface);
+    }
+
+    .goal-option:hover {
+      border-color: var(--color-primary);
+    }
+
+    .goal-option.selected {
+      border-color: var(--color-primary);
+      background: var(--color-primary-bg);
+      color: var(--color-primary-dark);
+    }
+
+    /* Achievement badges */
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+
+    .achievement-item {
+      background: var(--color-bg-alt);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      text-align: center;
+      opacity: 0.5;
+      transition: all var(--transition-base);
+    }
+
+    .achievement-item.unlocked {
+      opacity: 1;
+      background: var(--color-primary-bg);
+      border-color: var(--color-primary);
+    }
+
+    .achievement-item:hover {
+      transform: translateY(-2px);
+    }
+
+    .achievement-icon { font-size: 1.8rem; margin-bottom: 6px; }
+    .achievement-label { font-size: var(--text-xs); font-weight: 600; }
+
+    /* Danger zone */
+    .danger-zone {
+      background: var(--color-danger-light);
+      border: 1px solid #f5b8b8;
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin-top: var(--space-6);
+    }
+
+    .danger-zone h4 {
+      color: var(--color-danger);
+      margin-bottom: var(--space-3);
+    }
+
+    .danger-zone p {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+    }
+  </style>
+</head>
+<body class="profile-page">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div id="main-navbar"></div>
+  </nav>
+
+  <!-- Avatar picker modal -->
+  <div class="avatar-picker" id="avatar-picker" onclick="closeAvatarPicker(event)">
+    <div class="avatar-picker-box">
+      <h3>Elige tu avatar</h3>
+      <div class="avatar-grid" id="avatar-grid">
+        <!-- Rendered by JS -->
+      </div>
+      <button class="btn btn-secondary btn-sm" style="margin-top:16px; width:100%;" onclick="closeAvatarPicker()">Cancelar</button>
+    </div>
+  </div>
+
+  <main class="main-content">
+    <div class="container">
+
+      <!-- Profile header -->
+      <div class="profile-header-card" id="profile-header">
+        <div class="profile-avatar" id="avatar-display" onclick="openAvatarPicker()">
+          🧑
+          <div class="profile-avatar-edit">✏️</div>
+        </div>
+        <div class="profile-info">
+          <h2 id="profile-name">–</h2>
+          <p id="profile-email">–</p>
+          <div class="profile-meta" id="profile-meta">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Two-column layout -->
+      <div class="profile-layout">
+
+        <!-- LEFT: Personal data -->
+        <div>
+          <div class="edit-section mb-6" style="margin-bottom:var(--space-6);">
+            <div class="edit-section-header">
+              <span>📋</span><h3>Datos personales</h3>
+            </div>
+            <div class="edit-section-body">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3);">
+                <div class="form-group">
+                  <label class="form-label" for="p-name">Nombre</label>
+                  <input type="text" id="p-name" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="p-email">Email</label>
+                  <input type="email" id="p-email" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="p-weight">Peso (kg)</label>
+                  <input type="number" id="p-weight" class="form-input" min="30" max="250" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="p-height">Altura (cm)</label>
+                  <input type="number" id="p-height" class="form-input" min="100" max="250" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="p-age">Edad</label>
+                  <input type="number" id="p-age" class="form-input" min="15" max="100" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="p-budget">Presupuesto (€/sem)</label>
+                  <input type="number" id="p-budget" class="form-input" min="20" max="300" />
+                </div>
+              </div>
+              <button class="btn btn-primary" style="margin-top:8px;" onclick="savePersonalData()">
+                💾 Guardar cambios
+              </button>
+            </div>
+          </div>
+
+          <!-- Goal section -->
+          <div class="edit-section">
+            <div class="edit-section-header">
+              <span>🎯</span><h3>Objetivo</h3>
+            </div>
+            <div class="edit-section-body">
+              <div class="goal-options" id="goal-options">
+                <div class="goal-option" data-value="lose_weight" onclick="selectGoal(this)">⬇️ Perder peso</div>
+                <div class="goal-option" data-value="maintain" onclick="selectGoal(this)">⚖️ Mantenerme</div>
+                <div class="goal-option" data-value="gain_muscle" onclick="selectGoal(this)">💪 Ganar músculo</div>
+              </div>
+              <div class="form-group" style="margin-top:var(--space-4);">
+                <label class="form-label">Restricciones alimentarias</label>
+                <div class="tag-group" id="restrictions-tags">
+                  <!-- Rendered by JS -->
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm" style="margin-top:var(--space-4);" onclick="saveGoalData()">
+                💾 Guardar objetivo
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Achievements + settings -->
+        <div>
+          <!-- Achievements -->
+          <div class="edit-section" style="margin-bottom:var(--space-6);">
+            <div class="edit-section-header">
+              <span>🏆</span><h3>Logros</h3>
+            </div>
+            <div class="edit-section-body">
+              <p style="font-size:var(--text-sm); color:var(--color-text-muted); margin-bottom:4px;">
+                Completa objetivos para desbloquear logros
+              </p>
+              <div class="achievements-grid" id="achievements-grid">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <div class="edit-section" style="margin-bottom:var(--space-6);">
+            <div class="edit-section-header">
+              <span>🔔</span><h3>Notificaciones</h3>
+            </div>
+            <div class="edit-section-body">
+              <div style="display:flex; flex-direction:column; gap:var(--space-3);">
+                <label class="check-item" id="notif-meals" onclick="toggleNotif('meals', this)">
+                  <input type="checkbox" checked onchange="" style="width:18px; height:18px; accent-color:var(--color-primary);" />
+                  <div>
+                    <div style="font-weight:600; font-size:var(--text-sm);">Recordatorios de comidas</div>
+                    <div style="font-size:var(--text-xs); color:var(--color-text-muted);">Aviso 30 min antes de cada comida</div>
+                  </div>
+                </label>
+                <label class="check-item" onclick="">
+                  <input type="checkbox" checked style="width:18px; height:18px; accent-color:var(--color-primary);" />
+                  <div>
+                    <div style="font-weight:600; font-size:var(--text-sm);">Recordatorio de compra</div>
+                    <div style="font-size:var(--text-xs); color:var(--color-text-muted);">Aviso el domingo para planificar</div>
+                  </div>
+                </label>
+                <label class="check-item" onclick="">
+                  <input type="checkbox" style="width:18px; height:18px; accent-color:var(--color-primary);" />
+                  <div>
+                    <div style="font-weight:600; font-size:var(--text-sm);">Resumen semanal</div>
+                    <div style="font-size:var(--text-xs); color:var(--color-text-muted);">Email con tu progreso cada domingo</div>
+                  </div>
+                </label>
+              </div>
+              <button class="btn btn-outline btn-sm" style="margin-top:var(--space-4);" onclick="showToast('✅ Preferencias de notificación guardadas','success')">
+                Guardar preferencias
+              </button>
+            </div>
+          </div>
+
+          <!-- Danger zone -->
+          <div class="danger-zone">
+            <h4>⚠️ Zona peligrosa</h4>
+            <p>Estas acciones son irreversibles. Procede con cuidado.</p>
+            <div style="display:flex; gap:var(--space-3); flex-wrap:wrap;">
+              <button class="btn btn-sm btn-secondary" onclick="resetOnboarding()">Repetir configuración</button>
+              <button class="btn btn-sm btn-danger" onclick="confirmLogout()">Cerrar sesión</button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="dietopia-toast"></div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    /**
+     * Profile page logic
+     */
+
+    const AVATAR_OPTIONS = [
+      "🧑", "👦", "👧", "👨", "👩", "🧔", "👨‍🦰", "👩‍🦰",
+      "👨‍🦱", "👩‍🦱", "👨‍🦳", "👩‍🦳", "🧕", "👲", "🧑‍🍳", "👨‍🍳",
+      "🧑‍💻", "👩‍💻", "🧑‍🎓", "👩‍🎓", "🐱", "🐶", "🦊", "🐼",
+    ];
+
+    const RESTRICTION_OPTIONS = [
+      { value: "vegetarian", label: "Vegetariano 🥦" },
+      { value: "vegan", label: "Vegano 🌱" },
+      { value: "gluten_free", label: "Sin gluten 🌾" },
+      { value: "lactose_free", label: "Sin lactosa 🥛" },
+      { value: "nut_free", label: "Sin frutos secos 🥜" },
+      { value: "keto", label: "Keto 🥩" },
+      { value: "low_carb", label: "Bajo en carbos" },
+    ];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!Storage.get("loggedIn")) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      renderNavbar("profile");
+
+      const { USER, PROGRESS_DATA } = window.DietopiaData;
+      const user = Storage.get("user") || USER;
+
+      // ---- Render profile header ----
+      document.getElementById("avatar-display").childNodes[0].textContent = user.avatar || "🧑";
+      document.getElementById("profile-name").textContent = user.name || "Usuario";
+      document.getElementById("profile-email").textContent = user.email || "";
+
+      const meta = document.getElementById("profile-meta");
+      meta.innerHTML = [
+        { label: (user.goalLabel || "–") },
+        { label: "💰 €" + (user.budget || 60) + "/sem" },
+        { label: "🔥 " + (user.streak || 5) + " días" },
+      ].map((m) => `<span class="profile-meta-item">${m.label}</span>`).join("");
+
+      // ---- Fill personal data form ----
+      document.getElementById("p-name").value = user.name || "";
+      document.getElementById("p-email").value = user.email || "";
+      document.getElementById("p-weight").value = user.weight || "";
+      document.getElementById("p-height").value = user.height || "";
+      document.getElementById("p-age").value = user.age || "";
+      document.getElementById("p-budget").value = user.budget || 60;
+
+      // ---- Goal selector ----
+      const goalEl = document.querySelector(`.goal-option[data-value="${user.goal || 'maintain'}"]`);
+      if (goalEl) goalEl.classList.add("selected");
+
+      // ---- Restrictions ----
+      const restrictionsContainer = document.getElementById("restrictions-tags");
+      RESTRICTION_OPTIONS.forEach((r) => {
+        const tag = document.createElement("div");
+        tag.className = "tag-option" + ((user.restrictions || []).includes(r.value) ? " selected" : "");
+        tag.dataset.value = r.value;
+        tag.textContent = r.label;
+        tag.addEventListener("click", function () {
+          this.classList.toggle("selected");
+        });
+        restrictionsContainer.appendChild(tag);
+      });
+
+      // ---- Avatar picker ----
+      const avatarGrid = document.getElementById("avatar-grid");
+      AVATAR_OPTIONS.forEach((emoji) => {
+        const opt = document.createElement("div");
+        opt.className = "avatar-option";
+        opt.textContent = emoji;
+        opt.addEventListener("click", () => selectAvatar(emoji));
+        avatarGrid.appendChild(opt);
+      });
+
+      // ---- Achievements ----
+      const achievementsGrid = document.getElementById("achievements-grid");
+      PROGRESS_DATA.achievements.forEach((a) => {
+        const item = document.createElement("div");
+        item.className = "achievement-item" + (a.done ? " unlocked" : "");
+        item.innerHTML = `
+          <div class="achievement-icon">${a.icon}</div>
+          <div class="achievement-label">${a.label}</div>
+        `;
+        item.title = a.done ? "Desbloqueado ✅" : "Bloqueado 🔒";
+        achievementsGrid.appendChild(item);
+      });
+    });
+
+    // ---- Select goal ----
+    function selectGoal(el) {
+      document.querySelectorAll(".goal-option").forEach((o) => o.classList.remove("selected"));
+      el.classList.add("selected");
+    }
+
+    // ---- Save personal data ----
+    function savePersonalData() {
+      const user = Storage.get("user") || {};
+      user.name = document.getElementById("p-name").value;
+      user.email = document.getElementById("p-email").value;
+      user.weight = parseFloat(document.getElementById("p-weight").value) || user.weight;
+      user.height = parseFloat(document.getElementById("p-height").value) || user.height;
+      user.age = parseInt(document.getElementById("p-age").value, 10) || user.age;
+      user.budget = parseInt(document.getElementById("p-budget").value, 10) || user.budget;
+
+      Storage.set("user", user);
+
+      // Update header
+      document.getElementById("profile-name").textContent = user.name;
+      document.getElementById("profile-email").textContent = user.email;
+
+      showToast("✅ Datos guardados correctamente", "success");
+    }
+
+    // ---- Save goal data ----
+    function saveGoalData() {
+      const user = Storage.get("user") || {};
+      const selectedGoal = document.querySelector(".goal-option.selected");
+      if (selectedGoal) user.goal = selectedGoal.dataset.value;
+
+      const goalLabels = {
+        lose_weight: "Perder peso",
+        maintain: "Mantenerme",
+        gain_muscle: "Ganar músculo",
+      };
+      user.goalLabel = goalLabels[user.goal] || "–";
+
+      user.restrictions = Array.from(
+        document.querySelectorAll("#restrictions-tags .tag-option.selected")
+      ).map((el) => el.dataset.value);
+
+      Storage.set("user", user);
+      showToast("🎯 Objetivo actualizado. Se regenerará tu próxima dieta.", "success");
+    }
+
+    // ---- Avatar picker ----
+    function openAvatarPicker() {
+      document.getElementById("avatar-picker").classList.add("open");
+    }
+
+    function closeAvatarPicker(event) {
+      if (event && event.target !== document.getElementById("avatar-picker")) return;
+      document.getElementById("avatar-picker").classList.remove("open");
+    }
+
+    function selectAvatar(emoji) {
+      const user = Storage.get("user") || {};
+      user.avatar = emoji;
+      Storage.set("user", user);
+
+      // Update display (first text node of the avatar-display div)
+      const avatarEl = document.getElementById("avatar-display");
+      avatarEl.childNodes[0].textContent = emoji;
+
+      document.getElementById("avatar-picker").classList.remove("open");
+      showToast("Avatar actualizado ✅", "success");
+    }
+
+    // ---- Logout ----
+    function confirmLogout() {
+      if (confirm("¿Seguro que quieres cerrar sesión?")) {
+        Storage.remove("loggedIn");
+        window.location.href = "../index.html";
+      }
+    }
+
+    // ---- Reset onboarding ----
+    function resetOnboarding() {
+      Storage.remove("onboardingDone");
+      window.location.href = "onboarding.html";
+    }
+
+    // ---- Notification toggle ----
+    function toggleNotif(key, el) {
+      showToast("Preferencia actualizada ✅", "success");
+    }
+  </script>
+</body>
+</html>
