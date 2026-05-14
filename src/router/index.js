@@ -84,12 +84,14 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const requiresAuth = to.meta.requiresAuth
+  const profileCompleted = !!authStore.user?.profileCompleted
 
   if (requiresAuth && !authStore.isLoggedIn) {
     next({ name: 'Login' })
+  } else if (authStore.isLoggedIn && !profileCompleted && to.name !== 'Onboarding') {
+    next({ name: 'Onboarding' })
   } else if (to.name === 'Login' && authStore.isLoggedIn) {
-    // If user is already logged in, send them to dashboard when they try to access Login
-    next({ name: 'Dashboard' })
+    next({ name: profileCompleted ? 'Dashboard' : 'Onboarding' })
   } else {
     next()
   }

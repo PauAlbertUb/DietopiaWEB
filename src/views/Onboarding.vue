@@ -224,6 +224,7 @@ const finishOnboarding = async () => {
     physicalActivity: formData.value.physicalActivity,
     activityType: formData.value.activityType,
     peopleCount: formData.value.peopleCount,
+    profileCompleted: true,
     onboardingCompleted: true
   })
 

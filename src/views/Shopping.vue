@@ -4,10 +4,19 @@
       <h1>🛒 Lista de la compra</h1>
       <p class="subtitle">Optimizada para ahorrar dinero</p>
 
+      <div v-if="shoppingCompleted" class="completion-card">
+        <div class="completion-icon">✅</div>
+        <h2>Compra realizada con éxito</h2>
+        <p>Tu pedido a domicilio ya está cerrado y no volverá a mostrarse.</p>
+        <router-link to="/dashboard" class="btn btn-primary btn-lg">Volver al inicio</router-link>
+      </div>
+
+      <template v-else>
+
       <!-- Stats -->
       <div class="shopping-stats">
         <div class="stat">
-          <span class="stat-label">Total estimado</span>
+          <span class="stat-label">Total restante</span>
           <span class="stat-value">{{ totalCost.toFixed(2) }}€</span>
         </div>
         <div class="stat">
@@ -15,8 +24,12 @@
           <span class="stat-value">{{ savingsAmount.toFixed(2) }}€</span>
         </div>
         <div class="stat">
-          <span class="stat-label">Artículos</span>
-          <span class="stat-value">24</span>
+          <span class="stat-label">Artículos restantes</span>
+          <span class="stat-value">{{ totalItems }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Tienda activa</span>
+          <span class="stat-value">{{ selectedStore.name }}</span>
         </div>
       </div>
 
@@ -53,6 +66,14 @@
         </div>
       </div>
 
+      <div class="selection-summary">
+        <strong>{{ selectedStore.name }}</strong>
+        <span>·</span>
+        <span>{{ selectedPriorityLabel }}</span>
+        <span>·</span>
+        <span>{{ selectedStore.distanceKm }} km</span>
+      </div>
+
       <div class="action-buttons">
         <button @click="optimizeShopping" class="btn btn-primary">
           ✨ Optimitzar compra
@@ -67,10 +88,10 @@
         <div class="category">
           <h3>🥬 Frutas y verduras</h3>
           <div class="items">
-            <div v-for="(item, idx) in products.vegetables" :key="idx" class="item">
-              <input type="checkbox">
+            <div v-for="(item, idx) in products.vegetables" :key="idx" class="item" :class="{ checked: item.checked }">
+              <input v-model="item.checked" type="checkbox">
               <span>{{ item.name }}</span>
-              <span class="price">{{ item.price }}€</span>
+              <span class="price">{{ adjustedPrice(item.price).toFixed(2) }}€</span>
             </div>
           </div>
         </div>
@@ -78,15 +99,15 @@
         <div class="category">
           <h3>🥩 Proteínas</h3>
           <div class="items">
-            <div v-for="(item, idx) in products.proteins" :key="idx" class="item">
-              <input type="checkbox">
+            <div v-for="(item, idx) in products.proteins" :key="idx" class="item" :class="{ checked: item.checked }">
+              <input v-model="item.checked" type="checkbox">
               <div class="item-details">
                 <span>{{ item.name }}</span>
                 <button v-if="!item.ecoOnly" class="brand-btn" @click="showBrandOptions(idx)">
                   Cambiar marca
                 </button>
               </div>
-              <span class="price">{{ item.price }}€</span>
+              <span class="price">{{ adjustedPrice(item.price).toFixed(2) }}€</span>
             </div>
           </div>
         </div>
@@ -94,10 +115,10 @@
         <div class="category">
           <h3>🥛 Lácteos</h3>
           <div class="items">
-            <div v-for="(item, idx) in products.dairy" :key="idx" class="item">
-              <input type="checkbox">
+            <div v-for="(item, idx) in products.dairy" :key="idx" class="item" :class="{ checked: item.checked }">
+              <input v-model="item.checked" type="checkbox">
               <span>{{ item.name }}</span>
-              <span class="price">{{ item.price }}€</span>
+              <span class="price">{{ adjustedPrice(item.price).toFixed(2) }}€</span>
             </div>
           </div>
         </div>
@@ -105,20 +126,32 @@
         <div class="category">
           <h3>🌾 Carbohidratos</h3>
           <div class="items">
-            <div v-for="(item, idx) in products.carbs" :key="idx" class="item">
-              <input type="checkbox">
+            <div v-for="(item, idx) in products.carbs" :key="idx" class="item" :class="{ checked: item.checked }">
+              <input v-model="item.checked" type="checkbox">
               <span>{{ item.name }}</span>
-              <span class="price">{{ item.price }}€</span>
+              <span class="price">{{ adjustedPrice(item.price).toFixed(2) }}€</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Acciones -->
-      <div class="shopping-actions">
-        <button class="btn btn-primary btn-lg">📱 Compartir en WhatsApp</button>
-        <button class="btn btn-outline btn-lg">🖨️ Imprimir</button>
+      <div class="delivery-panel">
+        <button v-if="!showDeliveryForm" @click="showDeliveryForm = true" class="btn btn-primary btn-lg">
+          🏠 Compra a domicilio
+        </button>
+
+        <div v-else class="delivery-form">
+          <div class="form-group">
+            <label>Dirección de casa</label>
+            <input v-model="deliveryAddress" type="text" class="form-input" placeholder="Calle, número, piso, ciudad...">
+          </div>
+          <button @click="completeHomeDelivery" class="btn btn-primary btn-lg">
+            Confirmar compra y cerrar pantalla
+          </button>
+        </div>
       </div>
+
+      </template>
     </div>
   </div>
 </template>
@@ -136,6 +169,9 @@ const selectedSupermarket = ref('mercadona')
 const selectedPriority = ref('cheapest')
 const supermarkets = ref(SUPERMARKETS)
 const priorities = ref(SHOPPING_OPTIMIZATION_PRIORITIES)
+const showDeliveryForm = ref(false)
+const deliveryAddress = ref('')
+const shoppingCompleted = ref(localStorage.getItem('dietopia_shopping_completed') === 'true')
 
 const products = ref({
   vegetables: [
@@ -160,18 +196,53 @@ const products = ref({
   ]
 })
 
+const selectedStore = computed(() => {
+  return supermarkets.value.find(store => store.id === selectedSupermarket.value) || supermarkets.value[0]
+})
+
+const selectedPriorityLabel = computed(() => {
+  return priorities.value.find(priority => priority.value === selectedPriority.value)?.label || 'Sin prioridad'
+})
+
+const priceMultipliers = {
+  cheapest: 0.92,
+  closest: 0.98,
+  quality: 1.06,
+  eco: 0.95
+}
+
+const priceFactor = computed(() => {
+  const storeFactor = selectedStore.value?.priceIndex || 1
+  const priorityFactor = priceMultipliers[selectedPriority.value] || 1
+  return storeFactor * priorityFactor
+})
+
+const adjustedPrice = (price) => {
+  return Number((price * priceFactor.value).toFixed(2))
+}
+
+const totalItems = computed(() => {
+  return Object.values(products.value).reduce((count, category) => {
+    return count + category.filter(item => !item.checked).length
+  }, 0)
+})
+
+const baseTotal = computed(() => {
+  return Object.values(products.value).reduce((total, category) => {
+    return total + category.reduce((sum, item) => sum + adjustedPrice(item.price), 0)
+  }, 0)
+})
+
 const totalCost = computed(() => {
-  let total = 0
-  Object.values(products.value).forEach(category => {
-    category.forEach(item => {
-      total += item.price
-    })
-  })
-  return total
+  return Number(Object.values(products.value).reduce((total, category) => {
+    return total + category.reduce((sum, item) => {
+      return sum + (item.checked ? 0 : adjustedPrice(item.price))
+    }, 0)
+  }, 0).toFixed(2))
 })
 
 const savingsAmount = computed(() => {
-  return totalCost.value * 0.25
+  return Math.max(0, baseTotal.value - totalCost.value)
 })
 
 const selectSupermarket = (storeId) => {
@@ -183,13 +254,13 @@ const selectSupermarket = (storeId) => {
 const optimizeShopping = () => {
   const stores = supermarkets.value.map(store => ({
     store: store,
-    estimatedCost: totalCost.value * store.priceIndex,
+    estimatedCost: baseTotal.value * store.priceIndex * (priceMultipliers[selectedPriority.value] || 1),
     items: []
   }))
   
   const optimized = optimizeShoppingRoute(stores, selectedPriority.value)
   
-  let message = `Optimizado por ${selectedPriority.value === 'cheapest' ? 'precio' : selectedPriority.value === 'closest' ? 'cercanía' : selectedPriority.value === 'quality' ? 'calidad' : 'ECO'}. `
+  let message = `Optimizado por ${selectedPriorityLabel.value}. `
   message += `Mejor en ${optimized[0].store.name}: ${optimized[0].estimatedCost.toFixed(2)}€`
   
   uiStore.addToast(message, 'success', 3000)
@@ -209,6 +280,18 @@ const startGuidedShopping = () => {
 
 const showBrandOptions = (idx) => {
   uiStore.addToast('Opciones de marca disponibles (Simulado)', 'info', 2000)
+}
+
+const completeHomeDelivery = () => {
+  if (!deliveryAddress.value.trim()) {
+    uiStore.addToast('Escribe la dirección de entrega', 'error', 2500)
+    return
+  }
+
+  localStorage.setItem('dietopia_shopping_completed', 'true')
+  shoppingCompleted.value = true
+  uiStore.addToast('Compra realizada con éxito', 'success', 3000)
+  router.push('/dashboard')
 }
 </script>
 
@@ -261,6 +344,20 @@ const showBrandOptions = (idx) => {
   font-size: var(--text-2xl);
   font-weight: 800;
   color: var(--color-primary);
+}
+
+.selection-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  flex-wrap: wrap;
+}
+
+.selection-summary strong {
+  color: var(--color-text);
 }
 
 /* Filtros */
@@ -383,6 +480,11 @@ const showBrandOptions = (idx) => {
   transition: all var(--transition-base);
 }
 
+.item.checked {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
 .item:hover {
   background: rgba(91, 165, 91, 0.03);
 }
@@ -439,6 +541,43 @@ const showBrandOptions = (idx) => {
 
 .shopping-actions .btn {
   min-width: 200px;
+}
+
+.delivery-panel {
+  margin-top: var(--space-8);
+  display: flex;
+  justify-content: center;
+}
+
+.delivery-form {
+  width: 100%;
+  max-width: 640px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+}
+
+.completion-card {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-8);
+}
+
+.completion-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  background: rgba(91, 165, 91, 0.12);
 }
 
 @media (max-width: 640px) {

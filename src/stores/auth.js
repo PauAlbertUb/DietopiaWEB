@@ -9,13 +9,21 @@ export const useAuthStore = defineStore('auth', () => {
   const initializeAuth = () => {
     const savedUser = localStorage.getItem('dietopia_user')
     if (savedUser) {
-      user.value = JSON.parse(savedUser)
+      user.value = {
+        profileCompleted: false,
+        shoppingCompleted: false,
+        ...JSON.parse(savedUser)
+      }
     }
   }
 
   const login = (userData) => {
-    user.value = userData
-    localStorage.setItem('dietopia_user', JSON.stringify(userData))
+    user.value = {
+      profileCompleted: false,
+      shoppingCompleted: false,
+      ...userData
+    }
+    localStorage.setItem('dietopia_user', JSON.stringify(user.value))
     localStorage.setItem('dietopia_loggedIn', JSON.stringify(true))
   }
 

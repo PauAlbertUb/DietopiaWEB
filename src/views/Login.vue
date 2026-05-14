@@ -209,6 +209,10 @@ const currentTestimonialData = computed(() => {
   return testimonials[currentTestimonial.value] || testimonials[0]
 })
 
+const goToOnboarding = () => {
+  router.push('/onboarding')
+}
+
 const loginForm = ref({
   email: 'alex@example.com',
   password: 'password123'
@@ -252,13 +256,14 @@ const handleLogin = () => {
 
   const user = {
     ...MOCK_USER,
-    email: loginForm.value.email
+    email: loginForm.value.email,
+    profileCompleted: false,
+    shoppingCompleted: false
   }
 
   authStore.login(user)
   uiStore.addToast(`¡Bienvenido, ${user.name}!`, 'success', 3000)
-  // Siempre llevar al onboarding para solicitar los datos del perfil
-  router.push('/onboarding')
+  goToOnboarding()
 }
 
 const handleSignup = () => {
@@ -281,12 +286,14 @@ const handleSignup = () => {
     ...MOCK_USER,
     name: signupForm.value.name,
     email: signupForm.value.email,
-    avatar: signupForm.value.name[0].toUpperCase()
+    avatar: signupForm.value.name[0].toUpperCase(),
+    profileCompleted: false,
+    shoppingCompleted: false
   }
 
   authStore.login(user)
   uiStore.addToast(`¡Bienvenido, ${user.name}!`, 'success', 3000)
-  router.push('/onboarding')
+  goToOnboarding()
 }
 
 const handleOAuthGoogle = () => {
@@ -294,10 +301,12 @@ const handleOAuthGoogle = () => {
   const user = {
     ...MOCK_USER,
     name: 'Usuario Google',
-    email: 'google@example.com'
+    email: 'google@example.com',
+    profileCompleted: false,
+    shoppingCompleted: false
   }
   authStore.login(user)
-  router.push('/onboarding')
+  goToOnboarding()
 }
 
 const handleOAuthApple = () => {
@@ -305,10 +314,12 @@ const handleOAuthApple = () => {
   const user = {
     ...MOCK_USER,
     name: 'Usuario Apple',
-    email: 'apple@example.com'
+    email: 'apple@example.com',
+    profileCompleted: false,
+    shoppingCompleted: false
   }
   authStore.login(user)
-  router.push('/onboarding')
+  goToOnboarding()
 }
 
 onMounted(() => {

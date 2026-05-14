@@ -3,7 +3,7 @@
     <div class="loading-container">
       <div class="spinner"></div>
       <h2>{{ currentMessage }}</h2>
-      <p>Esto puede tardar 1-2 minutos...</p>
+      <p>Esto puede tardar unos segundos...</p>
       <div class="progress-dots">
         <span></span>
         <span></span>

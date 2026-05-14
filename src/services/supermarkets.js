@@ -50,6 +50,13 @@ export const SHOPPING_OPTIMIZATION_PRIORITIES = [
 
 export const generateShoppingListByStore = (products, priorityFilter = 'cheapest') => {
   const shoppingByStore = {}
+  const priorityFactors = {
+    cheapest: 0.92,
+    closest: 0.98,
+    quality: 1.05,
+    eco: 0.95
+  }
+  const factor = priorityFactors[priorityFilter] || 1
   
   SUPERMARKETS.forEach(store => {
     shoppingByStore[store.id] = {
@@ -63,7 +70,7 @@ export const generateShoppingListByStore = (products, priorityFilter = 'cheapest
     // Simular disponibilidad y precios en cada tienda
     SUPERMARKETS.forEach(store => {
       const basePrice = product.price
-      const storePrice = basePrice * store.priceIndex
+      const storePrice = basePrice * store.priceIndex * factor
       
       shoppingByStore[store.id].items.push({
         ...product,

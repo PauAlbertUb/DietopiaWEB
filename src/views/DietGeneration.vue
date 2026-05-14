@@ -4,37 +4,46 @@
     
     <div v-else class="container py-8">
       <h1>🤖 Generar nueva dieta</h1>
-      <p class="subtitle">Personaliza tu plan semanal</p>
+      <p class="subtitle">Usamos los datos que ya completaste en el onboarding</p>
 
-      <div class="form-container">
-        <div class="form-section">
-          <h2>1. Objetivo</h2>
-          <div class="options">
-            <label v-for="opt in goals" :key="opt.value" class="option-card">
-              <input v-model="form.goal" type="radio" :value="opt.value">
-              <span class="icon">{{ opt.icon }}</span>
-              <span class="label">{{ opt.label }}</span>
-            </label>
+      <div class="summary-panel">
+        <div class="summary-header">
+          <div>
+            <h2>Tu perfil está listo</h2>
+            <p>Ahora generamos directamente tu plan sin volver a pedirte lo mismo.</p>
+          </div>
+          <div class="summary-badge">Listo para generar</div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-card">
+            <span class="summary-label">Objetivo</span>
+            <strong>{{ profile.goalLabel }}</strong>
+          </div>
+          <div class="summary-card">
+            <span class="summary-label">Peso / Altura</span>
+            <strong>{{ profile.weight }} kg · {{ profile.height }} cm</strong>
+          </div>
+          <div class="summary-card">
+            <span class="summary-label">Edad</span>
+            <strong>{{ profile.age }} años</strong>
+          </div>
+          <div class="summary-card">
+            <span class="summary-label">Presupuesto</span>
+            <strong>{{ profile.budget }}€ / semana</strong>
+          </div>
+          <div class="summary-card">
+            <span class="summary-label">Restricciones</span>
+            <strong>{{ profile.restrictionsText }}</strong>
+          </div>
+          <div class="summary-card">
+            <span class="summary-label">Tiempo cocina</span>
+            <strong>{{ profile.cookingTimeText }}</strong>
           </div>
         </div>
 
-        <div class="form-section">
-          <h2>2. Restricciones</h2>
-          <div class="options">
-            <label v-for="rest in restrictions" :key="rest.value" class="checkbox-card">
-              <input v-model="form.restrictions" type="checkbox" :value="rest.value">
-              <span class="icon">{{ rest.icon }}</span>
-              <span class="label">{{ rest.label }}</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h2>3. Presupuesto</h2>
-          <div class="range-input">
-            <input v-model.number="form.budget" type="range" min="20" max="150" step="5">
-            <span class="range-value">{{ form.budget }}€ / semana</span>
-          </div>
+        <div class="summary-note">
+          <p>La dieta se generará con tu perfil guardado y luego podrás revisarla, ajustarla y comprar desde la lista optimizada.</p>
         </div>
 
         <button @click="generateDiet" class="btn btn-primary btn-lg" style="width: 100%;">
@@ -46,44 +55,68 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+import { useOnboardingStore } from '../stores/onboarding'
 import { useUIStore } from '../stores/ui'
 import LoadingScreen from '../components/LoadingScreen.vue'
 
 const router = useRouter()
+const authStore = useAuthStore()
+const onboardingStore = useOnboardingStore()
 const uiStore = useUIStore()
 
 const isLoading = ref(false)
 
-const goals = [
-  { value: 'lose_weight', label: 'Perder peso', icon: '📉' },
-  { value: 'maintain', label: 'Mantener', icon: '⚖️' },
-  { value: 'gain_muscle', label: 'Ganar músculo', icon: '💪' }
-]
+const goalLabels = {
+  lose_weight: 'Perder peso',
+  maintain: 'Mantener',
+  gain_muscle: 'Ganar músculo'
+}
 
-const restrictions = [
-  { value: 'vegetarian', label: 'Vegetariano', icon: '🥗' },
-  { value: 'vegan', label: 'Vegano', icon: '🌱' },
-  { value: 'gluten_free', label: 'Sin gluten', icon: '🌾' },
-  { value: 'dairy_free', label: 'Sin lactosa', icon: '🥛' }
-]
+const restrictionLabels = {
+  vegetarian: 'Vegetariano',
+  vegan: 'Vegano',
+  gluten_free: 'Sin gluten',
+  dairy_free: 'Sin lactosa',
+  shellfish: 'Sin mariscos',
+  nut_free: 'Sin frutos secos'
+}
 
-const form = ref({
-  goal: 'lose_weight',
-  restrictions: [],
-  budget: 60
+const timeLabels = {
+  low: 'Poco tiempo',
+  medium: 'Tiempo medio',
+  high: 'Mucho tiempo'
+}
+
+const profile = computed(() => {
+  const user = authStore.user || {}
+  const formData = onboardingStore.formData
+  const restrictions = formData.restrictions || []
+
+  return {
+    goalLabel: goalLabels[formData.goal || user.goal || 'maintain'] || 'Mantener',
+    weight: formData.weight || user.weight || '-',
+    height: formData.height || user.height || '-',
+    age: formData.age || user.age || '-',
+    budget: formData.budget || user.budget || '-',
+    restrictionsText: restrictions.length
+      ? restrictions.map(value => restrictionLabels[value] || value).join(', ')
+      : 'Sin restricciones',
+    cookingTimeText: timeLabels[formData.cookingTime || user.cookingTime || 'medium'] || 'Tiempo medio'
+  }
 })
 
 const generateDiet = () => {
   isLoading.value = true
   
-  // Simular 90 segundos (1.5 minutos) de procesamiento
+  // Generación breve para pasar directamente a la dieta
   setTimeout(() => {
     isLoading.value = false
     uiStore.addToast('¡Dieta generada con éxito!', 'success', 3000)
     router.push('/diet')
-  }, 90000)
+  }, 2200)
 }
 </script>
 
@@ -107,6 +140,81 @@ const generateDiet = () => {
   font-size: var(--text-lg);
   color: var(--color-text-muted);
   margin-bottom: var(--space-10);
+}
+
+.summary-panel {
+  max-width: 820px;
+  margin: 0 auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-card);
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.summary-header h2 {
+  margin-bottom: var(--space-2);
+}
+
+.summary-header p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.summary-badge {
+  background: var(--color-primary-bg);
+  color: var(--color-primary-dark);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.summary-card {
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.summary-label {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.summary-card strong {
+  font-size: var(--text-base);
+}
+
+.summary-note {
+  margin-bottom: var(--space-6);
+  padding: var(--space-4);
+  background: rgba(91, 165, 91, 0.08);
+  border-radius: var(--radius-md);
+}
+
+.summary-note p {
+  margin: 0;
 }
 
 .form-container {

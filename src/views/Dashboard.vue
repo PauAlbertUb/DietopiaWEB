@@ -10,7 +10,7 @@
             <p class="welcome-subtitle">Bienvenido a tu panel de control</p>
           </div>
           <div class="day-counter">
-            <div class="day-number">Día {{ currentDay }}/7</div>
+              <div class="day-number">Día {{ currentDay }}/{{ totalDays }}</div>
             <p>{{ dayPhrase }}</p>
           </div>
         </div>
@@ -109,6 +109,7 @@ const dietStore = useDietStore()
 const popupRef = ref(null)
 
 const user = computed(() => authStore.user)
+const totalDays = computed(() => dietStore.mealPlan?.days?.length || 7)
 const todayMeals = computed(() => dietStore.getCurrentDayMeals())
 
 // Contador de días
