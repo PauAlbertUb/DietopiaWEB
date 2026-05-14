@@ -87,7 +87,8 @@ router.beforeEach((to, from, next) => {
 
   if (requiresAuth && !authStore.isLoggedIn) {
     next({ name: 'Login' })
-  } else if ((to.name === 'Login' || to.name === 'Onboarding') && authStore.isLoggedIn) {
+  } else if (to.name === 'Login' && authStore.isLoggedIn) {
+    // If user is already logged in, send them to dashboard when they try to access Login
     next({ name: 'Dashboard' })
   } else {
     next()

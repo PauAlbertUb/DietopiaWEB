@@ -257,7 +257,8 @@ const handleLogin = () => {
 
   authStore.login(user)
   uiStore.addToast(`¡Bienvenido, ${user.name}!`, 'success', 3000)
-  router.push('/dashboard')
+  // Siempre llevar al onboarding para solicitar los datos del perfil
+  router.push('/onboarding')
 }
 
 const handleSignup = () => {
