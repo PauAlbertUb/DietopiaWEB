@@ -1,0 +1,146 @@
+export const MOCK_USER = {
+  name: "Alex García",
+  email: "alex@example.com",
+  avatar: "🧑‍💻",
+  weight: 75,
+  height: 175,
+  age: 28,
+  goal: "lose_weight",
+  goalLabel: "Perder peso",
+  restrictions: ["lactose_free"],
+  budget: 60,
+  planningType: "weekly",
+  daysActive: 12,
+  streak: 5,
+  compliance: 78,
+}
+
+export const MOCK_MEAL_PLAN = {
+  week: "28 Abr – 4 May 2025",
+  calories_target: 1800,
+  days: [
+    {
+      id: 0,
+      day: "Lunes",
+      date: "28 Abr",
+      meals: {
+        breakfast: {
+          id: "b0",
+          name: "Avena con frutas del bosque",
+          emoji: "🍓",
+          calories: 320,
+          time: "8:00",
+          tags: ["Sin lactosa", "Alto en fibra"],
+          ingredients: ["80g avena", "150ml leche de avena", "50g arándanos", "1 cucharada de miel"],
+          recipe: "Mezcla la avena con la leche de avena y calienta 2 min en microondas. Añade los arándanos y la miel por encima.",
+          macros: { protein: 10, carbs: 58, fat: 6 },
+        },
+        lunch: {
+          id: "l0",
+          name: "Ensalada de pollo y aguacate",
+          emoji: "🥗",
+          calories: 480,
+          time: "13:30",
+          tags: ["Alto en proteína", "Fresco"],
+          ingredients: ["150g pechuga de pollo", "1 aguacate", "100g lechuga mixta", "Tomates cherry", "Aceite de oliva"],
+          recipe: "Cocina el pollo a la plancha. Mezcla la lechuga, el aguacate y los tomates. Añade el pollo y aliña con aceite.",
+          macros: { protein: 38, carbs: 14, fat: 22 },
+        },
+        snack: {
+          id: "s0",
+          name: "Manzana con almendras",
+          emoji: "🍎",
+          calories: 200,
+          time: "16:30",
+          tags: ["Natural"],
+          ingredients: ["1 manzana grande", "20g almendras"],
+          recipe: "Sirve la manzana cortada en gajos junto con las almendras.",
+          macros: { protein: 4, carbs: 28, fat: 9 },
+        },
+        dinner: {
+          id: "d0",
+          name: "Salmón al vapor con brócoli",
+          emoji: "🐟",
+          calories: 420,
+          time: "20:30",
+          tags: ["Omega-3", "Sin gluten"],
+          ingredients: ["200g salmón", "200g brócoli", "1 limón", "Eneldo", "Aceite de oliva"],
+          recipe: "Cocina el salmón al vapor 12 min. Cuece el brócoli 5 min. Sirve con zumo de limón y eneldo.",
+          macros: { protein: 36, carbs: 10, fat: 24 },
+        },
+      },
+    },
+    {
+      id: 1,
+      day: "Martes",
+      date: "29 Abr",
+      meals: {
+        breakfast: {
+          id: "b1",
+          name: "Tostadas de aguacate y huevo",
+          emoji: "🥑",
+          calories: 380,
+          time: "8:00",
+          tags: ["Alto en proteína"],
+          ingredients: ["2 rebanadas pan integral", "1 aguacate", "2 huevos", "Sal", "Pimienta"],
+          recipe: "Tuesta el pan, aplasta el aguacate y ponlo encima. Cuece los huevos al gusto y añádelos.",
+          macros: { protein: 18, carbs: 42, fat: 18 },
+        },
+        lunch: {
+          id: "l1",
+          name: "Lentejas con verduras",
+          emoji: "🫘",
+          calories: 520,
+          time: "13:30",
+          tags: ["Alto en fibra", "Vegetariano"],
+          ingredients: ["150g lentejas cocidas", "200g verduras mixtas", "1 cebolla", "Aceite de oliva", "Especias"],
+          recipe: "Sofríe la cebolla, añade las lentejas cocidas y las verduras. Sazona y deja cocinar 10 min.",
+          macros: { protein: 18, carbs: 65, fat: 8 },
+        },
+        snack: {
+          id: "s1",
+          name: "Yogur natural con granola",
+          emoji: "🥣",
+          calories: 220,
+          time: "16:30",
+          tags: ["Probióticos"],
+          ingredients: ["200ml yogur natural", "40g granola", "Miel"],
+          recipe: "Sirve el yogur en un cuenco, añade la granola y un chorrito de miel.",
+          macros: { protein: 8, carbs: 42, fat: 3 },
+        },
+        dinner: {
+          id: "d1",
+          name: "Pechuga de pollo asada con patatas",
+          emoji: "🍗",
+          calories: 450,
+          time: "20:30",
+          tags: ["Bajo en grasa"],
+          ingredients: ["200g pechuga de pollo", "200g patatas", "Verduras", "Hierbas"],
+          recipe: "Asa el pollo a 200°C durante 20 min. Las patatas en horno con los mismos condimentos.",
+          macros: { protein: 40, carbs: 45, fat: 8 },
+        },
+      },
+    },
+  ],
+}
+
+export const TESTIMONIALS = [
+  {
+    text: "Dietopia me ha ayudado a perder 5kg en un mes sin pasar hambre. ¡Increíble!",
+    author: "María",
+    role: "Cliente desde hace 2 meses",
+    avatar: "👩‍💼"
+  },
+  {
+    text: "La personalización es lo mejor. Come lo que me gusta mientras cuido mi peso.",
+    author: "Juan",
+    role: "Cliente desde hace 1 mes",
+    avatar: "👨‍💼"
+  },
+  {
+    text: "Las recetas son deliciosas y fáciles de preparar. ¡Totalmente recomendado!",
+    author: "Sofia",
+    role: "Cliente desde hace 3 semanas",
+    avatar: "👩"
+  }
+]
